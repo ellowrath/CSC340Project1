@@ -1,12 +1,17 @@
-require 'matrix'
+require_relative 'matt_matrix'
 
 class Driver
 
-  my_matrix = Matrix.new(2, 2)
+  def go
+    my_matrix = MattMatrix.new
 
-  puts my_matrix.class
-  puts my_matrix
+    puts my_matrix.class
+    p my_matrix
+    my_matrix.make_identity
+    p my_matrix
 
+  end
 end
 
-run Driver.run
+my_driver = Driver.new
+my_driver.go
