@@ -1,24 +1,36 @@
+=begin
+Look, this thing is kind of shit
+should probably redo with structs
+=end
+
 class MattMatrix
 
-  attr_accessor :num_rows, :num_cols, :matrix
+  attr_accessor :num_rows, :num_cols
 
-  def initialize(num_rows = 2, num_cols = 2)
-    @num_rows = num_rows
-    @num_cols = num_cols
-    @matrix = Array.new(num_rows) { Array.new(num_cols) }
+  def initialize(rows = 2, cols = 2)
+    @rows = rows
+    @cols = cols
     zero_matrix
   end
 
-  def num_rows=(num_rows)
-    raise 'Must have at least 1 row' if num_rows < 1
-    @num_rows = num_rows
+  def rows=(rows)
+    raise 'Must have at least 1 row' if rows < 1
+    @rows = rows
   end
 
-  def num_cols=(num_cols)
-    raise 'Must have at least 1 column.' if num_cols < 1
-    @num_cols = num_cols
+  def cols=(cols)
+    raise 'Must have at least 1 column.' if cols < 1
+    @cols = cols
   end
 
+  # so, I hate the lack of *checking* done here
+  def MattMatrix.[](*rows)
+    @rows = rows.count
+
+
+  end
+
+  # this function won't work yet
   def get_data_from_file(file_name)
     File.open(file_name) do |lines|
       rows = lines.readlines
@@ -28,9 +40,10 @@ class MattMatrix
   # fills all elements with zeros
   # this will destroy your matrix
   # don't call it on something important
+  # probably broken now
   def zero_matrix
-    (0..@num_rows - 1).each do |row|
-      (0..@num_cols - 1).each do |column|
+    (0..@rows - 1).each do |row|
+      (0..@cols - 1).each do |column|
         @matrix[row][column] = 0
       end
     end
@@ -40,9 +53,10 @@ class MattMatrix
   # turns the matrix into an identity matrix
   # this will destroy your matrix
   # don't call it on something important
+  # probably broken now
   def make_identity
-    (0..@num_rows - 1).each do |row|
-      (0..@num_cols - 1).each do |column|
+    (0..@rows - 1).each do |row|
+      (0..@cols - 1).each do |column|
         if row == column
           @matrix[row][column] = 1
         else
@@ -55,11 +69,12 @@ class MattMatrix
 
   # need to check conformability for addition / subtraction
   # might be able to overload '=='
+  # ya, broke
   def conformable_add?(other_matrix)
     raise 'Must be a MattMatrix' unless other_matrix.class == MattMatrix
-    if @num_rows != other_matrix.num_rows
+    if @rows != other_matrix.rows
       false
-    elsif @num_cols != other_matrix.num_cols
+    elsif @cols != other_matrix.cols
       false
     else
       true
@@ -67,10 +82,11 @@ class MattMatrix
   end
 
   # need to be able to add conformable matrices
+  # broke
   def +(other_matrix)
     raise 'Must be conformable matrices' unless conformable_add?(other_matrix)
-    (0..@num_rows - 1).each do |row|
-      (0..@num_cols - 1).each do |column|
+    (0..@rows - 1).each do |row|
+      (0..@cols - 1).each do |column|
         x = @matrix[row][column]
         y = other_matrix[row][column]
         x + y
