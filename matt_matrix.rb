@@ -1,14 +1,11 @@
 class MattMatrix
 
-  attr_accessor :num_rows, :num_cols
-
-  # for testing, I should move this to driver.rb
-  file_name = "data1.txt"
+  attr_accessor :num_rows, :num_cols, :matrix
 
   def initialize(num_rows = 2, num_cols = 2)
     @num_rows = num_rows
     @num_cols = num_cols
-    @matrix = Array.new(num_rows){Array.new(num_cols)}
+    @matrix = Array.new(num_rows) { Array.new(num_cols) }
     zero_matrix
   end
 
@@ -22,13 +19,15 @@ class MattMatrix
     @num_cols = num_cols
   end
 
-  def get_rows_from_file(file_name)
+  def get_data_from_file(file_name)
     File.open(file_name) do |lines|
       rows = lines.readlines
     end
   end
 
   # fills all elements with zeros
+  # this will destroy your matrix
+  # don't call it on something important
   def zero_matrix
     (0..@num_rows - 1).each do |row|
       (0..@num_cols - 1).each do |column|
@@ -38,6 +37,7 @@ class MattMatrix
     @matrix
   end
 
+  # turns the matrix into an identity matrix
   # this will destroy your matrix
   # don't call it on something important
   def make_identity
@@ -50,6 +50,31 @@ class MattMatrix
         end
       end
     end
+    @matrix
+  end
 
+  # need to check conformability for addition / subtraction
+  # might be able to overload '=='
+  def conformable_add?(other_matrix)
+    raise 'Must be a MattMatrix' unless other_matrix.class == MattMatrix
+    if @num_rows != other_matrix.num_rows
+      false
+    elsif @num_cols != other_matrix.num_cols
+      false
+    else
+      true
+    end
+  end
+
+  # need to be able to add conformable matrices
+  def +(other_matrix)
+    raise 'Must be conformable matrices' unless conformable_add?(other_matrix)
+    (0..@num_rows - 1).each do |row|
+      (0..@num_cols - 1).each do |column|
+        x = @matrix[row][column]
+        y = other_matrix[row][column]
+        x + y
+      end
+    end
   end
 end
