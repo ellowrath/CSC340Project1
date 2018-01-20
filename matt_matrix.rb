@@ -8,15 +8,17 @@ Creating a MattMatrix with no arguments gets you a 2x2 zero matrix.
 =end
 
 class MattMatrix
-  attr_accessor :rows_count, :cols_count, :matrix
+  attr_accessor :rows_count, :cols_count, :matrix, :file_name
 
-  def initialize(*args)
-    # we got no arguments, just an empty matrix
-    if args.length.zero?
-      @rows_count = 2
-      @cols_count = 2
+  def initialize(rows_count = 2, cols_count = 2, file_name = 'no_file_name')
+    @rows_count = rows_count
+    @cols_count = cols_count
+    @file_name = file_name
+    if file_name == 'no_file_name'
       build(@rows_count, @cols_count)
       zero_matrix
+    else
+      build_from_file(file_name)
     end
   end
 
@@ -38,11 +40,17 @@ class MattMatrix
     @matrix = Array.new(r) { Array.new(c) }
   end
 
-  # this function won't work yet
-  def get_data_from_file(file_name)
-    File.open(file_name) do |lines|
-      rows = lines.readlines
+  # builds a matrix from a file of tab separated floats
+  def build_from_file(file_name)
+    temp = File.open(file_name).readlines
+    @rows_count = temp.length
+    temp.each_index do |line|
+      temp[line] = temp[line].delete("\n").split("\t")
+      temp[line].each_index {|i| temp[line][i] = temp[line][i].to_f}
     end
+    @cols_count = temp[0].length
+    build(@rows_count, @cols_count)
+    (0..rows_count - 1).each { |row| @matrix[row] = temp[row] }
   end
 
   # fills all elements with zeros
@@ -62,6 +70,7 @@ class MattMatrix
   # don't call it on something important
   # probably broken now
   def make_identity
+    raise 'It has to be a square matrix to be an identity matrix' unless @rows_count == @cols_count
     (0..@rows_count - 1).each do |row|
       (0..@cols_count - 1).each do |column|
         if row == column
@@ -75,8 +84,6 @@ class MattMatrix
   end
 
   # need to check conformability for addition / subtraction
-  # might be able to overload '=='
-  # ya, broke
   def conformable_add?(other_matrix)
     raise 'Must be a MattMatrix' unless other_matrix.class == MattMatrix
     if @rows_count != other_matrix.rows_count || @cols_count != other_matrix.cols_count
@@ -87,8 +94,10 @@ class MattMatrix
   end
 
   # self + src = dest
+  # you can name the first matrix to store result in self ( like a += )
   def add_matrices(src, dest)
     raise 'Must be conformable matrices' unless conformable_add? src
+    raise 'Must be conformable matrices' unless conformable_add? dest
     (0..@rows_count - 1).each do |row|
       (0..@cols_count - 1).each do |column|
         dest.matrix[row][column] = @matrix[row][column] + src.matrix[row][column]
@@ -96,8 +105,11 @@ class MattMatrix
     end
   end
 
+  # self - src = dest
+  # you can name the first matrix to store result in self ( like a -= )
   def sub_matrices(src, dest)
     raise 'Must be conformable matrices' unless conformable_add? src
+    raise 'Must be conformable matrices' unless conformable_add? dest
     (0..@rows_count - 1).each do |row|
       (0..@cols_count - 1).each do |column|
         dest.matrix[row][column] = @matrix[row][column] - src.matrix[row][column]
