@@ -95,4 +95,13 @@ class MattMatrix
       end
     end
   end
+
+  def sub_matrices(src, dest)
+    raise 'Must be conformable matrices' unless conformable_add? src
+    (0..@rows_count - 1).each do |row|
+      (0..@cols_count - 1).each do |column|
+        dest.matrix[row][column] = @matrix[row][column] - src.matrix[row][column]
+      end
+    end
+  end
 end

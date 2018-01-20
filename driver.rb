@@ -22,7 +22,7 @@ class Driver
     p my_second_matrix
 
     my_third_matrix = MattMatrix.new
-    my_matrix.add_matrices(my_second_matrix, my_third_matrix)
+    my_matrix.sub_matrices(my_second_matrix, my_third_matrix)
 
     p my_third_matrix
 
