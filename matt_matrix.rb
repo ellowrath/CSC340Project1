@@ -93,6 +93,15 @@ class MattMatrix
     end
   end
 
+  def conformable_mult?(other_matrix)
+    raise 'Must be a MattMatrix' unless other_matrix.class == MattMatrix
+    if @cols_count != other_matrix.rows_count
+      false
+    else
+      true
+    end
+  end
+
   # self + src = dest
   # you can name the first matrix to store result in self ( like a += )
   def add_matrices(src, dest)
@@ -113,6 +122,22 @@ class MattMatrix
     (0..@rows_count - 1).each do |row|
       (0..@cols_count - 1).each do |column|
         dest.matrix[row][column] = @matrix[row][column] - src.matrix[row][column]
+      end
+    end
+  end
+
+  # self * src = dest
+  def mult_matrices(src, dest)
+    raise 'This matrix\'s columns must equal that matrix\'s rows!' unless conformable_mult? src
+    dest.build(@cols_count, @cols_count)
+    dest.zero_matrix
+    (0..dest.rows_count - 1).each do |row|
+      (0..dest.cols_count - 1).each do |column|
+        (0..@rows_count - 1).each do
+          (0..@cols_count - 1).each do
+            dest.matrix[row][column] = dest.matrix[row][column] + (@matrix[row][column] * src.matrix[column][row])
+          end
+        end
       end
     end
   end
