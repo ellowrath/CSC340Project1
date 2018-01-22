@@ -26,6 +26,10 @@ class Driver
     my_matrix.mult_matrices(my_second_matrix, my_third_matrix)
     p my_third_matrix
 
+    my_fourth_matrix = MattMatrix.new(2, 3)
+    my_matrix.mult_scalar_matrix(2, my_fourth_matrix)
+    p my_fourth_matrix
+
 
 #    my_data_matrix = MattMatrix.new(2, 2,'data1.txt')
 #    p my_data_matrix

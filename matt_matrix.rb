@@ -140,4 +140,13 @@ class MattMatrix
       end
     end
   end
+
+  # I think you can put self into dest for a *=
+  def mult_scalar_matrix(scalar, dest)
+    (0..@rows_count - 1).each do |row|
+      (0..@cols_count - 1).each do |column|
+        dest.matrix[row][column] = scalar * @matrix[row][column]
+      end
+    end
+  end
 end
