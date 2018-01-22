@@ -129,16 +129,28 @@ class MattMatrix
   # self * src = dest
   def mult_matrices(src, dest)
     raise 'This matrix\'s columns must equal that matrix\'s rows!' unless conformable_mult? src
+    cell_one_test = 0.0
     dest.build(@cols_count, @cols_count)
     dest.zero_matrix
     (0..dest.rows_count - 1).each do |row|
       (0..dest.cols_count - 1).each do |column|
         (0..@rows_count - 1).each do
+          dest.matrix[row][column] = dest.matrix[row][column] + (@matrix[row][column] * src.matrix[column][row])
           (0..@cols_count - 1).each do
-            dest.matrix[row][column] = dest.matrix[row][column] + (@matrix[row][column] * src.matrix[column][row])
           end
         end
       end
     end
+    # this mother fucking shit right here
+    (0..2).each do |row|
+      (0..2).each do |col|
+        puts row
+        puts col
+        puts @matrix[row][col]
+        # f_two = src.matrix[col][row]
+        # cell_one_test = cell_one_test + (f_one * f_two)
+      end
+    end
+    puts cell_one_test
   end
 end
