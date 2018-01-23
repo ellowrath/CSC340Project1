@@ -193,7 +193,7 @@ class MattMatrix
     # somehow, the following smashes the pivot index really need to trace this out
     new_index = current_index + 1
     (new_index..@rows_count - 1).each do |row|
-      temp_cons = @matrix[row][new_index]
+      temp_cons = @matrix[row][row] # diagonally progresses
       temp_vec = @matrix[current_index]
       mult_row_by_cons(temp_vec, temp_cons)
       (current_index..@cols_count - 1).each do |col|
