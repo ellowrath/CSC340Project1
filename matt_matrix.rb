@@ -191,15 +191,15 @@ class MattMatrix
     mult_row_by_cons(current_index, multiplier)
     # can't increment current_index yet, need it to stay current for now
     # somehow, the following smashes the pivot index really need to trace this out
-=begin
-    (current_index + 1..@rows_count - 1).each do |row|
-      temp_cons = @matrix[row][current_index]
+    new_index = current_index + 1
+    (new_index..@rows_count - 1).each do |row|
+      temp_cons = @matrix[row][new_index]
       temp_vec = @matrix[current_index]
       mult_row_by_cons(temp_vec, temp_cons)
       (current_index..@cols_count - 1).each do |col|
         @matrix[row][col] = @matrix[row][col] - temp_vec[col]
       end
     end
-=end
+
   end
 end
