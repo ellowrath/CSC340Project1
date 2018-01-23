@@ -149,4 +149,11 @@ class MattMatrix
       end
     end
   end
+
+  # for swapping two rows' positions in the matrix
+  def interchange_rows(row_index_a, row_index_b)
+    temp = @matrix[row_index_a]
+    @matrix[row_index_a] = @matrix[row_index_b]
+    @matrix[row_index_b] = temp
+  end
 end

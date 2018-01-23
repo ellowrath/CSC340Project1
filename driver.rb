@@ -14,21 +14,24 @@ class Driver
 
   def go
 
-    my_matrix = MattMatrix.new(2, 3)
+    my_matrix = MattMatrix.new(5, 2)
     rand_fill(my_matrix)
     p my_matrix
 
-    my_second_matrix = MattMatrix.new(3, 2)
-    rand_fill(my_second_matrix)
-    p my_second_matrix
+    my_matrix.interchange_rows(2, 4 )
+    p my_matrix
 
-    my_third_matrix = MattMatrix.new
-    my_matrix.mult_matrices(my_second_matrix, my_third_matrix)
-    p my_third_matrix
+#    my_second_matrix = MattMatrix.new(3, 2)
+#    rand_fill(my_second_matrix)
+#    p my_second_matrix
 
-    my_fourth_matrix = MattMatrix.new(2, 3)
-    my_matrix.mult_scalar_matrix(2, my_fourth_matrix)
-    p my_fourth_matrix
+#    my_third_matrix = MattMatrix.new
+#    my_matrix.mult_matrices(my_second_matrix, my_third_matrix)
+#    p my_third_matrix
+
+#    my_fourth_matrix = MattMatrix.new(2, 3)
+#    my_matrix.mult_scalar_matrix(2, my_fourth_matrix)
+#    p my_fourth_matrix
 
 
 #    my_data_matrix = MattMatrix.new(2, 2,'data1.txt')
