@@ -18,7 +18,10 @@ class Driver
     rand_fill(my_matrix)
     p my_matrix
 
-    my_matrix.interchange_rows(2, 4 )
+#     my_matrix.interchange_rows(2, 4 )
+#     p my_matrix
+
+    my_matrix.mult_row_by_cons(1, 2.5)
     p my_matrix
 
 #    my_second_matrix = MattMatrix.new(3, 2)

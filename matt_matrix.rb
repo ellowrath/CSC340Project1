@@ -156,4 +156,8 @@ class MattMatrix
     @matrix[row_index_a] = @matrix[row_index_b]
     @matrix[row_index_b] = temp
   end
+
+  def mult_row_by_cons(row, cons)
+    (0..@cols_count - 1).each { |col| @matrix[row][col] = @matrix[row][col] * cons }
+  end
 end
