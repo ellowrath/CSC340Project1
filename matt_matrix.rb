@@ -157,7 +157,49 @@ class MattMatrix
     @matrix[row_index_b] = temp
   end
 
+  # The way I handled this is a little confusing.
   def mult_row_by_cons(row, cons)
-    (0..@cols_count - 1).each { |col| @matrix[row][col] = @matrix[row][col] * cons }
+    (0..@cols_count - 1).each { |col| @matrix[row][col] = @matrix[row][col] * cons } if row.class == Integer
+    (0..row.length - 1).each { |col| row[col] = row[col] * cons } if row.class == Array
+  end
+
+  def calc_pivot index
+    row = index
+    col = index
+    p_index = -1
+    p_value = -10.0 # might have to make this much smaller
+    (row..@rows_count - 1).each do |r_index|
+      if @matrix[r_index][col] > p_value
+        p_value = @matrix[r_index][col]
+        p_index = r_index
+      end
+    end
+    p_index
+  end
+
+  # here's the bad boy
+  def gauss_jordan_elim
+    current_index = 0
+    temp_vec = []
+    e_flag = 1 # don't think I need this, see the exception raise below
+    # first, we need a pivot index
+    pivot = calc_pivot current_index
+    raise 'No unique solution exists' if pivot == -1
+    interchange_rows(current_index, pivot)
+    # sometimes I get 0.9999-> instead of 1, how to mitigate?
+    multiplier = 1/@matrix[current_index][current_index]
+    mult_row_by_cons(current_index, multiplier)
+    # can't increment current_index yet, need it to stay current for now
+    # somehow, the following smashes the pivot index really need to trace this out
+=begin
+    (current_index + 1..@rows_count - 1).each do |row|
+      temp_cons = @matrix[row][current_index]
+      temp_vec = @matrix[current_index]
+      mult_row_by_cons(temp_vec, temp_cons)
+      (current_index..@cols_count - 1).each do |col|
+        @matrix[row][col] = @matrix[row][col] - temp_vec[col]
+      end
+    end
+=end
   end
 end

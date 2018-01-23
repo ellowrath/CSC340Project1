@@ -14,15 +14,18 @@ class Driver
 
   def go
 
-    my_matrix = MattMatrix.new(5, 2)
+    my_matrix = MattMatrix.new(5, 4)
     rand_fill(my_matrix)
+    p my_matrix
+
+    my_matrix.gauss_jordan_elim
     p my_matrix
 
 #     my_matrix.interchange_rows(2, 4 )
 #     p my_matrix
 
-    my_matrix.mult_row_by_cons(1, 2.5)
-    p my_matrix
+#    my_matrix.mult_row_by_cons(1, 2.5)
+#    p my_matrix
 
 #    my_second_matrix = MattMatrix.new(3, 2)
 #    rand_fill(my_second_matrix)
