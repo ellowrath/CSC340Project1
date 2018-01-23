@@ -167,9 +167,9 @@ class MattMatrix
     row = index
     col = index
     p_index = -1
-    p_value = -10.0 # might have to make this much smaller
+    p_value = 0.0 # might have to make this much smaller
     (row..@rows_count - 1).each do |r_index|
-      if @matrix[r_index][col] > p_value
+      if @matrix[r_index][col].abs > p_value
         p_value = @matrix[r_index][col]
         p_index = r_index
       end
@@ -177,11 +177,20 @@ class MattMatrix
     p_index
   end
 
+  # for a nicer representation for testing
+  # prints the current matrix
+  def print_matrix
+    (0..@rows_count - 1).each { |row| p @matrix[row]}
+    puts ""
+  end
+
   # here's the bad boy
   def gauss_jordan_elim
+=begin
     current_index = 0
     temp_vec = []
     e_flag = 1 # don't think I need this, see the exception raise below
+
     # first, we need a pivot index
     pivot = calc_pivot current_index
     raise 'No unique solution exists' if pivot == -1
@@ -191,15 +200,24 @@ class MattMatrix
     mult_row_by_cons(current_index, multiplier)
     # can't increment current_index yet, need it to stay current for now
     # somehow, the following smashes the pivot index really need to trace this out
-    new_index = current_index + 1
-    (new_index..@rows_count - 1).each do |row|
-      temp_cons = @matrix[row][row] # diagonally progresses
-      temp_vec = @matrix[current_index]
-      mult_row_by_cons(temp_vec, temp_cons)
-      (current_index..@cols_count - 1).each do |col|
-        @matrix[row][col] = @matrix[row][col] - temp_vec[col]
+=end
+    # Total Re-Write
+    (0..@rows_count - 1).each do |row|
+      pivot = calc_pivot row
+      raise 'No unique solution exists' if pivot == -1
+      interchange_rows(row, pivot)
+      multiplier = 1/@matrix[row][row]
+      mult_row_by_cons(row, multiplier)
+      (row..@rows_count - 1).each do |i_row|
+        next if row == i_row
+        temp_vec = @matrix[row]
       end
+
+
     end
+
+
+
 
   end
 end
