@@ -15,11 +15,17 @@ class Driver
   def go
 
     my_matrix = MattMatrix.new(4, 5)
+    my_cloned_matrix = MattMatrix.new
     rand_fill(my_matrix)
+    my_cloned_matrix = my_matrix.clone
     my_matrix.print_matrix
+    my_cloned_matrix.print_matrix
 
     my_matrix.gauss_jordan_elim
     my_matrix.print_matrix
+
+    my_cloned_matrix.gaussian_elim
+    my_cloned_matrix.print_matrix
 
 #     my_matrix.interchange_rows(2, 4 )
 #     p my_matrix

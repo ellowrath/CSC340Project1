@@ -152,9 +152,9 @@ class MattMatrix
 
   # for swapping two rows' positions in the matrix
   def interchange_rows(row_index_a, row_index_b)
-    temp = @matrix[row_index_a]
-    @matrix[row_index_a] = @matrix[row_index_b]
-    @matrix[row_index_b] = temp
+    temp = @matrix[row_index_a].clone
+    @matrix[row_index_a] = @matrix[row_index_b].clone
+    @matrix[row_index_b] = temp.clone
   end
 
   # The way I handled this is a little confusing.
@@ -166,6 +166,8 @@ class MattMatrix
   def calc_pivot index
     row = index
     col = index
+    # -1 because I'm returning an index, and index 0 very possibly could
+    # be the pivot index
     p_index = -1
     p_value = 0.0 # might have to make this much smaller
     (row..@rows_count - 1).each do |r_index|
@@ -198,7 +200,22 @@ class MattMatrix
         temp_vec = @matrix[row].clone
         temp_cons = @matrix[i_row][row]
         mult_row_by_cons(temp_vec, temp_cons)
-        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c]}
+        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
+      end
+    end
+  end
+
+  def gaussian_elim
+    (0..@rows_count - 1).each do |row|
+      pivot = calc_pivot row
+      raise 'No unique solution exists' if pivot == -1
+      interchange_rows(row, pivot)
+      (row..@rows_count - 1).each do |i_row|
+        next if row == i_row
+        multiplier = @matrix[i_row][row] / @matrix[row][row]
+        temp_vec = @matrix[row].clone
+        mult_row_by_cons(temp_vec, multiplier)
+        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
       end
     end
   end
