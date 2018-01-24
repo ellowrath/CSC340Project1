@@ -186,38 +186,20 @@ class MattMatrix
 
   # here's the bad boy
   def gauss_jordan_elim
-=begin
-    current_index = 0
-    temp_vec = []
-    e_flag = 1 # don't think I need this, see the exception raise below
-
-    # first, we need a pivot index
-    pivot = calc_pivot current_index
-    raise 'No unique solution exists' if pivot == -1
-    interchange_rows(current_index, pivot)
-    # sometimes I get 0.9999-> instead of 1, how to mitigate?
-    multiplier = 1/@matrix[current_index][current_index]
-    mult_row_by_cons(current_index, multiplier)
-    # can't increment current_index yet, need it to stay current for now
-    # somehow, the following smashes the pivot index really need to trace this out
-=end
-    # Total Re-Write
     (0..@rows_count - 1).each do |row|
       pivot = calc_pivot row
       raise 'No unique solution exists' if pivot == -1
       interchange_rows(row, pivot)
       multiplier = 1/@matrix[row][row]
       mult_row_by_cons(row, multiplier)
-      (row..@rows_count - 1).each do |i_row|
+      # (row..@rows_count - 1).each do |i_row|
+      (0..@rows_count - 1).each do |i_row|
         next if row == i_row
-        temp_vec = @matrix[row]
+        temp_vec = @matrix[row].clone
+        temp_cons = @matrix[i_row][row]
+        mult_row_by_cons(temp_vec, temp_cons)
+        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c]}
       end
-
-
     end
-
-
-
-
   end
 end
