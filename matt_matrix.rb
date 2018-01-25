@@ -197,7 +197,7 @@ class MattMatrix
       # (row..@rows_count - 1).each do |i_row|
       (0..@rows_count - 1).each do |i_row|
         next if row == i_row
-        temp_vec = @matrix[row].clone
+        temp_vec = @matrix[row].map { |e| e.dup }
         temp_cons = @matrix[i_row][row]
         mult_row_by_cons(temp_vec, temp_cons)
         (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
@@ -210,12 +210,13 @@ class MattMatrix
       pivot = calc_pivot row
       raise 'No unique solution exists' if pivot == -1
       interchange_rows(row, pivot)
+      # this loop is the problem, trace better
       (row..@rows_count - 1).each do |i_row|
         next if row == i_row
         multiplier = @matrix[i_row][row] / @matrix[row][row]
-        temp_vec = @matrix[row].clone
+        temp_vec = @matrix[row].map { |e| e.dup }
         mult_row_by_cons(temp_vec, multiplier)
-        (i_row..@rows_count).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
+        (row..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
       end
     end
   end
