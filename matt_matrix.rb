@@ -215,7 +215,7 @@ class MattMatrix
         multiplier = @matrix[i_row][row] / @matrix[row][row]
         temp_vec = @matrix[row].clone
         mult_row_by_cons(temp_vec, multiplier)
-        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
+        (i_row..@rows_count).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
       end
     end
   end
