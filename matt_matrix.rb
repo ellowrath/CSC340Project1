@@ -213,10 +213,12 @@ class MattMatrix
       # this loop is the problem, trace better
       (row..@rows_count - 1).each do |i_row|
         next if row == i_row
-        multiplier = @matrix[i_row][row] / @matrix[row][row]
+        temp_cons = @matrix[i_row][row] / @matrix[row][row]
         temp_vec = @matrix[row].map { |e| e.dup }
-        mult_row_by_cons(temp_vec, multiplier)
-        (row..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
+        mult_row_by_cons(temp_vec, temp_cons)
+        (row..@cols_count - 1).each do |c|
+          @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c]
+        end
       end
     end
   end
