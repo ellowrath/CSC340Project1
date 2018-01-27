@@ -221,5 +221,13 @@ class MattMatrix
         end
       end
     end
+    # matrix should now be in echelon form
+    sum = 0
+    ans = 0
+    (@rows_count - 1).downto(0) do |row|
+      sum = sum + (@matrix[row][@cols_count - 1] * ans)
+      ans = (1/@matrix[row][row]) * (@matrix[row][@cols_count - 1])
+
+    end
   end
 end
