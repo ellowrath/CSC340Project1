@@ -18,8 +18,10 @@ class Driver
     # my_matrix_2 = MattMatrix.new
     rand_fill(my_matrix)
     my_matrix.print_matrix
-    my_matrix.inverse
-    my_matrix.print_matrix
+    my_matrix.dump_to_csv
+    my_matrix.determinant
+    # my_matrix.inverse
+    # my_matrix.print_matrix
     # only way I know how to deep copy an object with arrays
     # my_matrix_2 = Marshal.load( Marshal.dump(my_matrix))
     # my_matrix.print_matrix

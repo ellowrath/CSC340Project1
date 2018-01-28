@@ -7,6 +7,8 @@ Creating a MattMatrix with no arguments gets you a 2x2 zero matrix.
 
 =end
 
+require 'csv'
+
 class MattMatrix
   attr_accessor :rows_count, :cols_count, :matrix, :file_name
 
@@ -51,6 +53,15 @@ class MattMatrix
     @cols_count = temp[0].length
     build(@rows_count, @cols_count)
     (0..rows_count - 1).each { |row| @matrix[row] = temp[row] }
+  end
+
+  # there's all sorts of reason I might want this
+  def dump_to_csv
+    CSV.open("matrix.csv", "wb") do |csv|
+      (0..@rows_count - 1).each do |row|
+        csv << @matrix[row]
+      end
+    end
   end
 
   # fills all elements with zeros
@@ -164,6 +175,8 @@ class MattMatrix
   end
 
   # for swapping two rows' positions in the matrix
+  # re-write this to do a deep copy, this .clone might cause
+  # problems down the line
   def interchange_rows(row_index_a, row_index_b)
     temp = @matrix[row_index_a].clone
     @matrix[row_index_a] = @matrix[row_index_b].clone
@@ -259,5 +272,34 @@ class MattMatrix
         (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
       end
     end
+  end
+
+  def determinant
+    r = 0
+    (0..@rows_count - 1).each do |row|
+      pivot = calc_pivot row
+      raise 'No unique solution exists' if pivot == -1
+      if @matrix[pivot][row] > @matrix[row][row]
+        interchange_rows(row, pivot)
+        r += 1
+      end
+      (row..@rows_count - 1).each do |i_row|
+        next if row == i_row
+        temp_cons = @matrix[i_row][row] / @matrix[row][row]
+        temp_vec = @matrix[row].map { |e| e.dup }
+        mult_row_by_cons(temp_vec, temp_cons)
+        (row..@cols_count - 1).each do |c|
+          @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c]
+        end
+      end
+    end
+    delta = 1
+    (0..@rows_count - 1).each do |row|
+      delta *= @matrix[row][row]
+    end
+    puts delta
+    puts r
+    delta *= -1**r
+    puts delta
   end
 end
