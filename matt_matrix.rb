@@ -65,10 +65,7 @@ class MattMatrix
     @matrix
   end
 
-  # turns the matrix into an identity matrix
-  # this will destroy your matrix
-  # don't call it on something important
-  # probably broken now
+  # don't call on something important
   def make_identity
     raise 'It has to be a square matrix to be an identity matrix' unless @rows_count == @cols_count
     (0..@rows_count - 1).each do |row|
@@ -81,6 +78,22 @@ class MattMatrix
       end
     end
     @matrix
+  end
+
+  # turns the matrix into n x 2n with the second set of columns
+  # being an identity matrix
+  def augment_with_identity
+    @cols_count *= 2
+    # lets exploit that this was once a square matrix
+    (0..@rows_count - 1).each do |row|
+      (@rows_count..@cols_count - 1).each do |col|
+        if row + @rows_count == col
+          @matrix[row][col] = 1
+        else
+          @matrix[row][col] = 0
+        end
+      end
+    end
   end
 
   # need to check conformability for addition / subtraction
@@ -192,8 +205,7 @@ class MattMatrix
       pivot = calc_pivot row
       raise 'No unique solution exists' if pivot == -1
       interchange_rows(row, pivot)
-      multiplier = 1/@matrix[row][row]
-      mult_row_by_cons(row, multiplier)
+      mult_row_by_cons(row, 1/@matrix[row][row])
       # (row..@rows_count - 1).each do |i_row|
       (0..@rows_count - 1).each do |i_row|
         next if row == i_row
@@ -206,7 +218,7 @@ class MattMatrix
   end
 
   def gaussian_elim
-    ans_vec = []
+    ans = []
     (0..@rows_count - 1).each do |row|
       pivot = calc_pivot row
       raise 'No unique solution exists' if pivot == -1
@@ -225,10 +237,27 @@ class MattMatrix
     # matrix should now be in echelon form
     (@rows_count - 1).downto(0) do |row|
       sum = 0
-      (row + 1..@cols_count - 2).each { |col| sum += @matrix[row][col] * ans_vec[col] }
-      ans_vec[row] = (1/@matrix[row][row]) * (@matrix[row][@cols_count - 1] - sum)
+      (row + 1..@cols_count - 2).each { |col| sum += @matrix[row][col] * ans[col] }
+      ans[row] = (1/@matrix[row][row]) * (@matrix[row][@cols_count - 1] - sum)
     end
-    p ans_vec
+    p ans
     puts ""
+  end
+
+  def inverse
+    augment_with_identity
+    (0..@rows_count - 1).each do |row|
+      pivot = calc_pivot row
+      raise 'No unique solution exists' if pivot == -1
+      interchange_rows(row, pivot)
+      mult_row_by_cons(row, 1/@matrix[row][row])
+      (0..@rows_count - 1).each do |i_row|
+        next if row == i_row
+        temp_vec = @matrix[row].map { |e| e.dup }
+        temp_cons = @matrix[i_row][row]
+        mult_row_by_cons(temp_vec, temp_cons)
+        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
+      end
+    end
   end
 end
