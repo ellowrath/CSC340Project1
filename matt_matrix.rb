@@ -206,6 +206,7 @@ class MattMatrix
   end
 
   def gaussian_elim
+    ans_vec = []
     (0..@rows_count - 1).each do |row|
       pivot = calc_pivot row
       raise 'No unique solution exists' if pivot == -1
@@ -222,12 +223,15 @@ class MattMatrix
       end
     end
     # matrix should now be in echelon form
-    sum = 0
-    ans = 0
     (@rows_count - 1).downto(0) do |row|
-      sum = sum + (@matrix[row][@cols_count - 1] * ans)
-      ans = (1/@matrix[row][row]) * (@matrix[row][@cols_count - 1])
-
+      sum = 0
+      (row + 1..@cols_count - 2).each do |col|
+        sum += @matrix[row][col] * ans_vec[col]
+      end
+      ans = (1/@matrix[row][row]) * (@matrix[row][@cols_count - 1] - sum)
+      ans_vec[row] = ans
     end
+    p ans_vec
+    puts ""
   end
 end
