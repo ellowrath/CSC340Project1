@@ -9,7 +9,9 @@ Creating a MattMatrix with no arguments gets you a 2x2 zero matrix.
 
 require 'csv'
 
+# rubocop:disable ClassLength
 class MattMatrix
+
   attr_accessor :rows_count, :cols_count, :matrix, :file_name
 
   def initialize(rows_count = 2, cols_count = 2, file_name = 'no_file_name')
@@ -24,20 +26,6 @@ class MattMatrix
     end
   end
 
-  def rows_count=(rows_count)
-    raise 'Must have at least 1 row' if rows_count < 1
-    @rows_count = rows_count
-  end
-
-  def cols_count=(cols_count)
-    raise 'Must have at least 1 column.' if cols_count < 1
-    @cols_count = cols_count
-  end
-
-  def matrix=(matrix)
-    @matrix = matrix
-  end
-
   def build(r, c)
     @matrix = Array.new(r) { Array.new(c) }
   end
@@ -48,7 +36,7 @@ class MattMatrix
     @rows_count = temp.length
     temp.each_index do |line|
       temp[line] = temp[line].delete("\n").split("\t")
-      temp[line].each_index {|i| temp[line][i] = temp[line][i].to_f}
+      temp[line].each_index { |i| temp[line][i] = temp[line][i].to_f }
     end
     @cols_count = temp[0].length
     build(@rows_count, @cols_count)
@@ -57,7 +45,7 @@ class MattMatrix
 
   # there's all sorts of reason I might want this
   def dump_to_csv
-    CSV.open("matrix.csv", "wb") do |csv|
+    CSV.open('matrix.csv', 'wb') do |csv|
       (0..@rows_count - 1).each do |row|
         csv << @matrix[row]
       end
@@ -78,7 +66,7 @@ class MattMatrix
 
   # don't call on something important
   def make_identity
-    raise 'It has to be a square matrix to be an identity matrix' unless @rows_count == @cols_count
+    raise 'Matrix not square.' unless @rows_count == @cols_count
     (0..@rows_count - 1).each do |row|
       (0..@cols_count - 1).each do |column|
         if row == column
@@ -88,7 +76,6 @@ class MattMatrix
         end
       end
     end
-    @matrix
   end
 
   # turns the matrix into n x 2n with the second set of columns
@@ -108,22 +95,23 @@ class MattMatrix
   end
 
   # need to check conformability for addition / subtraction
-  def conformable_add?(other_matrix)
-    raise 'Must be a MattMatrix' unless other_matrix.class == MattMatrix
-    if @rows_count != other_matrix.rows_count || @cols_count != other_matrix.cols_count
+  def conformable_add?(o_matrix)
+    raise 'Must be a MattMatrix' unless o_matrix.class == MattMatrix
+    if @rows_count != o_matrix.rows_count || @cols_count != o_matrix.cols_count
       false
     else
       true
     end
   end
 
-  def conformable_mult?(other_matrix)
-    raise 'Must be a MattMatrix' unless other_matrix.class == MattMatrix
-    if @cols_count != other_matrix.rows_count
-      false
-    else
-      true
-    end
+  def conformable_mult?(o_matrix)
+    raise 'Must be a MattMatrix' unless o_matrix.class == MattMatrix
+    !(@cols_count != o_matrix.rows_count)
+    # if @cols_count != o_matrix.rows_count
+    #   false
+    # else
+    #   true
+    # end
   end
 
   # self + src = dest
@@ -152,8 +140,9 @@ class MattMatrix
 
   # self * src = dest
   # you cannot *= this one
+  # something's not working here
   def mult_matrices(src, dest)
-    raise 'This matrix\'s columns must equal that matrix\'s rows!' unless conformable_mult? src
+    raise 'Matrices not conformable for multiplication.' unless conformable_mult? src
     dest.build(@cols_count, @cols_count)
     dest.zero_matrix
     (0..dest.rows_count - 1).each do |row|
@@ -303,3 +292,4 @@ class MattMatrix
     puts delta
   end
 end
+# rubocop:enable ClassLength

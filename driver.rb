@@ -14,12 +14,17 @@ class Driver
 
   def go
 
-    my_matrix = MattMatrix.new(4, 4)
-    # my_matrix_2 = MattMatrix.new
+    my_matrix = MattMatrix.new(4, 3)
+    my_matrix_2 = MattMatrix.new(3, 4)
+    my_matrix_3 = MattMatrix.new
     rand_fill(my_matrix)
+    rand_fill(my_matrix_2)
     my_matrix.print_matrix
-    my_matrix.dump_to_csv
-    my_matrix.determinant
+    my_matrix.mult_matrices(my_matrix_2, my_matrix_3)
+    my_matrix_3.print_matrix
+    # my_matrix.print_matrix
+    # my_matrix.dump_to_csv
+    # my_matrix.determinant
     # my_matrix.inverse
     # my_matrix.print_matrix
     # only way I know how to deep copy an object with arrays
@@ -27,6 +32,7 @@ class Driver
     # my_matrix.print_matrix
     # my_matrix_2.print_matrix
 
+    # my_matrix.make_identity
     # my_matrix.gauss_jordan_elim
     # my_matrix.print_matrix
 
