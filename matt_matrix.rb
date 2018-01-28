@@ -211,7 +211,7 @@ class MattMatrix
       pivot = calc_pivot row
       raise 'No unique solution exists' if pivot == -1
       interchange_rows(row, pivot)
-      # this loop is the problem, trace better
+      # this whole loop is a travesty
       (row..@rows_count - 1).each do |i_row|
         next if row == i_row
         temp_cons = @matrix[i_row][row] / @matrix[row][row]
@@ -225,11 +225,8 @@ class MattMatrix
     # matrix should now be in echelon form
     (@rows_count - 1).downto(0) do |row|
       sum = 0
-      (row + 1..@cols_count - 2).each do |col|
-        sum += @matrix[row][col] * ans_vec[col]
-      end
-      ans = (1/@matrix[row][row]) * (@matrix[row][@cols_count - 1] - sum)
-      ans_vec[row] = ans
+      (row + 1..@cols_count - 2).each { |col| sum += @matrix[row][col] * ans_vec[col] }
+      ans_vec[row] = (1/@matrix[row][row]) * (@matrix[row][@cols_count - 1] - sum)
     end
     p ans_vec
     puts ""
