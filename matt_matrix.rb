@@ -26,7 +26,10 @@ class MattMatrix
     end
   end
 
+  # build a matrix according to provided dimensions
   def build(r, c)
+    @rows_count = r
+    @cols_count = c
     @matrix = Array.new(r) { Array.new(c) }
   end
 
@@ -69,11 +72,8 @@ class MattMatrix
     raise 'Matrix not square.' unless @rows_count == @cols_count
     (0..@rows_count - 1).each do |row|
       (0..@cols_count - 1).each do |column|
-        if row == column
-          @matrix[row][column] = 1
-        else
-          @matrix[row][column] = 0
-        end
+        @matrix[row][column] = 1 if row == column
+        @matrix[row][column] = 0 if row != column
       end
     end
   end
@@ -85,11 +85,8 @@ class MattMatrix
     # lets exploit that this was once a square matrix
     (0..@rows_count - 1).each do |row|
       (@rows_count..@cols_count - 1).each do |col|
-        if row + @rows_count == col
-          @matrix[row][col] = 1
-        else
-          @matrix[row][col] = 0
-        end
+        @matrix[row][col] = 1 if row + @rows_count == col
+        @matrix[row][col] = 0 if row + @rows_count != col
       end
     end
   end
@@ -106,7 +103,7 @@ class MattMatrix
 
   def conformable_mult?(o_matrix)
     raise 'Must be a MattMatrix' unless o_matrix.class == MattMatrix
-    !(@cols_count != o_matrix.rows_count)
+    (@cols_count == o_matrix.rows_count)
     # if @cols_count != o_matrix.rows_count
     #   false
     # else
