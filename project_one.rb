@@ -63,6 +63,15 @@ class ProjectOne
   def question_two
     sub_class_one = []
     sub_class_two = []
+    cov_mat_one_one = MattMatrix.new
+    cov_mat_one_two = MattMatrix.new
+    cov_mat_two_one = MattMatrix.new
+    cov_mat_two_two = MattMatrix.new
+    cov_mat_one_one.build(@class_one.length, 1)
+    cov_mat_one_two.build(@class_one.length, 1)
+    cov_mat_two_one.build(@class_two.length, 1)
+    cov_mat_two_two.build(@class_two.length, 1)
+    # create the difference vectores
     (0..@class_one.length - 1).each do |row|
       sub_class_one[row] = @class_one[row].map { |e| e.dup }
       sub_class_two[row] = @class_two[row].map { |e| e.dup }
@@ -71,18 +80,17 @@ class ProjectOne
         sub_class_two[row][cell] -= @m_two[cell]
       end
     end
-    dif_vec_one_one = MattMatrix.new
-    dif_vec_one_two = MattMatrix.new
-    dif_vec_two_one = MattMatrix.new
-    dif_vec_two_two = MattMatrix.new
-    cov_mat_one_one = MattMatrix.new
-    cov_mat_one_two = MattMatrix.new
-    cov_mat_two_one = MattMatrix.new
-    cov_mat_two_two = MattMatrix.new
-    cov_mat_one_one.build(@class_one.length, @class_one.length)
-    cov_mat_one_two.build(@class_one.length, @class_one.length)
-    cov_mat_two_one.build(@class_two.length, @class_two.length)
-    cov_mat_two_two.build(@class_two.length, @class_two.length)
+    # put the difference vectors into MattMatrices
+    (0..@class_one.length - 1).each do |cell|
+      cov_mat_one_one.matrix[cell] = sub_class_one[cell][0]
+      cov_mat_one_two.matrix[cell] = sub_class_one[cell][1]
+      cov_mat_two_one.matrix[cell] = sub_class_two[cell][0]
+      cov_mat_two_one.matrix[cell] = sub_class_two[cell][1]
+    end
+    puts cov_mat_one_one.rows_count
+    puts cov_mat_one_one.cols_count
+    cov_mat_one_one.calc_covariance
+
   end
 end
 

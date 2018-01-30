@@ -68,14 +68,31 @@ class Driver
     puts 'Write a verification later schmuck.'
   end
 
+  # this is not a good test
   def test_transpose
     m = MattMatrix.new
-    m.build(5, 5)
+    m.build(110, 1)
     rand_fill(m)
     m.print_matrix
     m.transpose
+    m.print_matrix
+  end
+
+  def test_matrix_multiplication
+    m = MattMatrix.new
+    n = MattMatrix.new
+    o = MattMatrix.new
+    m.build(2, 3)
+    n.build(3, 2)
+    rand_fill(m)
+    rand_fill(n)
+    m.print_matrix
+    n.print_matrix
+    o.mult_matrices(m, n)
+    o.print_matrix
+
   end
 end
 
 my_driver = Driver.new
-my_driver.test_transpose
+my_driver.test_matrix_multiplication

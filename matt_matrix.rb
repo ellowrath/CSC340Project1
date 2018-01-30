@@ -135,20 +135,18 @@ class MattMatrix
     end
   end
 
-  # self * src = dest
-  # you cannot *= this one
-  # something's not working here
-  def mult_matrices(src, dest)
-    raise 'Matrices not conformable for multiplication.' unless conformable_mult? src
-    dest.build(@cols_count, @cols_count)
-    dest.zero_matrix
-    (0..dest.rows_count - 1).each do |row|
-      (0..dest.cols_count - 1).each do |column|
-        (0..@cols_count - 1).each do |index|
-          dest.matrix[row][column] = dest.matrix[row][column] + (@matrix[row][index] * src.matrix[index][column])
-        end
+  # src * dest = self
+  def mult_matrices(src1, src2)
+    build(src1.cols_count, src2.rows_count)
+    zero_matrix
+    (0..@rows_count - 1).each do |row|
+      (0..@cols_count - 1).each do |col|
+        sum = 0
+        src1.matrix[row].zip(src2.matrix[col]) {|a, b| sum += a * b}
+        @matrix[row][col] = sum
       end
     end
+    src1.matrix.zip(src2.matrix) { |a, b| sum += a * b}
   end
 
   # I think you can put self into dest for a *=
@@ -291,16 +289,51 @@ class MattMatrix
 
   # this is shit, look up a better way
   def transpose
-    temp_rows = []
-    temp_cols = []
-    (0..@rows_count - 1).each do |row|
-      temp_rows[row] = @matrix[row].map { |e| e.dup }
-      (0..@cols_count - 1).each do |col|
-        temp_cols.push(@matrix[row][col])
+    puts 'Before transpose: '
+    puts 'rows_count: ' + @rows_count.to_s
+    puts 'cols_count: ' + @cols_count.to_s
+    new_rows_count = @cols_count
+    new_cols_count = @rows_count
+    temp_vector = []
+    # 1d array, column major order
+    temp_vector = @matrix.flatten
+=begin
+    (0..@cols_count - 1).each do |col|
+      (0..@rows_count - 1).each do |row|
+        temp_vector.push(@matrix[row][col])
       end
     end
-    puts temp_rows.to_s
-    puts temp_cols.to_s
+=end
+    @rows_count = new_rows_count
+    @cols_count = new_cols_count
+    build(@rows_count, @cols_count)
+    puts 'Safely copied matrix, and changed values for rows and columns'
+    puts 'New rows_count: ' + @rows_count.to_s
+    puts 'New cols_count: ' + @cols_count.to_s
+    (0..@rows_count - 1).each do |row|
+      @matrix[row] = temp_vector.slice!(0..@cols_count - 1)
+    end
+  end
+
+  # this is very bad
+  # in order for this to work, the provided matrix
+  # must be n by 1
+  def calc_covariance
+    temp_vector = MattMatrix.new
+    transpose_temp_vector = MattMatrix.new
+    temp_vector.build(@rows_count, 1)
+    transpose_temp_vector.build(@rows_count, 1)
+    (0..@rows_count - 1).each do |cell|
+      temp_vector.matrix[cell] = @matrix[cell].dup
+      transpose_temp_vector.matrix[cell] = @matrix[cell].dup
+    end
+    build(temp_vector.rows_count, temp_vector.rows_count)
+    puts temp_vector.rows_count
+    puts temp_vector.cols_count
+    puts transpose_temp_vector.rows_count
+    puts transpose_temp_vector.cols_count
+    transpose_temp_vector.transpose
+    transpose_temp_vector.mult_matrices(temp_vector, self)
   end
 end
 # rubocop:enable ClassLength
