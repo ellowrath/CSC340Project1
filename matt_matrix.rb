@@ -288,5 +288,19 @@ class MattMatrix
     delta *= -1**r
     puts delta
   end
+
+  # this is shit, look up a better way
+  def transpose
+    temp_rows = []
+    temp_cols = []
+    (0..@rows_count - 1).each do |row|
+      temp_rows[row] = @matrix[row].map { |e| e.dup }
+      (0..@cols_count - 1).each do |col|
+        temp_cols.push(@matrix[row][col])
+      end
+    end
+    puts temp_rows.to_s
+    puts temp_cols.to_s
+  end
 end
 # rubocop:enable ClassLength

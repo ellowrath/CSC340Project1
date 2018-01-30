@@ -67,7 +67,15 @@ class Driver
     m.print_matrix
     puts 'Write a verification later schmuck.'
   end
+
+  def test_transpose
+    m = MattMatrix.new
+    m.build(5, 5)
+    rand_fill(m)
+    m.print_matrix
+    m.transpose
+  end
 end
 
 my_driver = Driver.new
-my_driver.test_make_identity_func
+my_driver.test_transpose

@@ -59,8 +59,34 @@ class ProjectOne
     puts 'mean for class one, : ' + @m_one.to_s
     puts 'mean for class two: ' + @m_two.to_s
   end
+
+  def question_two
+    sub_class_one = []
+    sub_class_two = []
+    (0..@class_one.length - 1).each do |row|
+      sub_class_one[row] = @class_one[row].map { |e| e.dup }
+      sub_class_two[row] = @class_two[row].map { |e| e.dup }
+      (0..sub_class_one[row].length - 1).each do |cell|
+        sub_class_one[row][cell] -= @m_one[cell]
+        sub_class_two[row][cell] -= @m_two[cell]
+      end
+    end
+    dif_vec_one_one = MattMatrix.new
+    dif_vec_one_two = MattMatrix.new
+    dif_vec_two_one = MattMatrix.new
+    dif_vec_two_two = MattMatrix.new
+    cov_mat_one_one = MattMatrix.new
+    cov_mat_one_two = MattMatrix.new
+    cov_mat_two_one = MattMatrix.new
+    cov_mat_two_two = MattMatrix.new
+    cov_mat_one_one.build(@class_one.length, @class_one.length)
+    cov_mat_one_two.build(@class_one.length, @class_one.length)
+    cov_mat_two_one.build(@class_two.length, @class_two.length)
+    cov_mat_two_two.build(@class_two.length, @class_two.length)
+  end
 end
 
 my_project = ProjectOne.new
 my_project.question_one
+my_project.question_two
 
