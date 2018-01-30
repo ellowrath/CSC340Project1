@@ -101,14 +101,10 @@ class MattMatrix
     end
   end
 
-  def conformable_mult?(o_matrix)
-    raise 'Must be a MattMatrix' unless o_matrix.class == MattMatrix
-    (@cols_count == o_matrix.rows_count)
-    # if @cols_count != o_matrix.rows_count
-    #   false
-    # else
-    #   true
-    # end
+  def conformable_mult?(a_matrix, b_matrix)
+    raise 'Must be a MattMatrix' unless a_matrix.class == MattMatrix
+    raise 'Must be a MattMatrix' unless b_matrix.class == MattMatrix
+    (a_matrix.cols_count == b_matrix.rows_count)
   end
 
   # self + src = dest
@@ -137,16 +133,18 @@ class MattMatrix
 
   # src * dest = self
   def mult_matrices(src1, src2)
-    build(src1.cols_count, src2.rows_count)
+    conformable_mult? src1, src2
+    build(src1.rows_count, src2.cols_count)
     zero_matrix
-    (0..@rows_count - 1).each do |row|
-      (0..@cols_count - 1).each do |col|
-        sum = 0
-        src1.matrix[row].zip(src2.matrix[col]) {|a, b| sum += a * b}
+    (0..src1.rows_count - 1).each do |row|
+      (0..src2.cols_count - 1).each do |col|
+        sum = 0.0
+        (0..src1.cols_count - 1).each do |ind|
+          sum += src1.matrix[row][ind] * src2.matrix[ind][col]
+        end
         @matrix[row][col] = sum
       end
     end
-    src1.matrix.zip(src2.matrix) { |a, b| sum += a * b}
   end
 
   # I think you can put self into dest for a *=
@@ -289,27 +287,13 @@ class MattMatrix
 
   # this is shit, look up a better way
   def transpose
-    puts 'Before transpose: '
-    puts 'rows_count: ' + @rows_count.to_s
-    puts 'cols_count: ' + @cols_count.to_s
     new_rows_count = @cols_count
     new_cols_count = @rows_count
-    temp_vector = []
     # 1d array, column major order
     temp_vector = @matrix.flatten
-=begin
-    (0..@cols_count - 1).each do |col|
-      (0..@rows_count - 1).each do |row|
-        temp_vector.push(@matrix[row][col])
-      end
-    end
-=end
     @rows_count = new_rows_count
     @cols_count = new_cols_count
     build(@rows_count, @cols_count)
-    puts 'Safely copied matrix, and changed values for rows and columns'
-    puts 'New rows_count: ' + @rows_count.to_s
-    puts 'New cols_count: ' + @cols_count.to_s
     (0..@rows_count - 1).each do |row|
       @matrix[row] = temp_vector.slice!(0..@cols_count - 1)
     end
@@ -327,13 +311,8 @@ class MattMatrix
       temp_vector.matrix[cell] = @matrix[cell].dup
       transpose_temp_vector.matrix[cell] = @matrix[cell].dup
     end
-    build(temp_vector.rows_count, temp_vector.rows_count)
-    puts temp_vector.rows_count
-    puts temp_vector.cols_count
-    puts transpose_temp_vector.rows_count
-    puts transpose_temp_vector.cols_count
     transpose_temp_vector.transpose
-    transpose_temp_vector.mult_matrices(temp_vector, self)
+    mult_matrices(temp_vector, transpose_temp_vector)
   end
 end
 # rubocop:enable ClassLength
