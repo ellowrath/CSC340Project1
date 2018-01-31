@@ -4,6 +4,9 @@ Look, this thing is kind of shit
 should probably redo with structs
 
 Creating a MattMatrix with no arguments gets you a 2x2 zero matrix.
+A MattMatrix is not necessarily a good matrix.
+A MattMatrix is more like a dangerous playground, where matrices can go
+and get mixed up with other matrices.
 
 =end
 
@@ -12,38 +15,24 @@ require 'csv'
 # rubocop:disable ClassLength
 class MattMatrix
 
-  attr_accessor :rows_count, :cols_count, :matrix, :file_name
+  attr_accessor :rows_count, :cols_count, :matrix, :means
 
-  def initialize(rows_count = 2, cols_count = 2, file_name = 'no_file_name')
+  # a little default matrix
+  def initialize(rows_count = 2, cols_count = 2)
     @rows_count = rows_count
     @cols_count = cols_count
-    @file_name = file_name
-    if file_name == 'no_file_name'
-      build(@rows_count, @cols_count)
-      zero_matrix
-    else
-      build_from_file(file_name)
-    end
+    build(@rows_count, @cols_count)
+    zero_matrix
   end
 
   # build a matrix according to provided dimensions
+  # if called on a matrix that already exists, you might
+  # lose data, or retail data
+  # call zero_matrix after
   def build(r, c)
     @rows_count = r
     @cols_count = c
     @matrix = Array.new(r) { Array.new(c) }
-  end
-
-  # builds a matrix from a file of tab separated floats
-  def build_from_file(file_name)
-    temp = File.open(file_name).readlines
-    @rows_count = temp.length
-    temp.each_index do |line|
-      temp[line] = temp[line].delete("\n").split("\t")
-      temp[line].each_index { |i| temp[line][i] = temp[line][i].to_f }
-    end
-    @cols_count = temp[0].length
-    build(@rows_count, @cols_count)
-    (0..rows_count - 1).each { |row| @matrix[row] = temp[row] }
   end
 
   # there's all sorts of reason I might want this
@@ -322,7 +311,16 @@ class MattMatrix
       end
     end
 =end
+  end
 
+  def calc_mean_vectors
+    @means = Array.new(@cols_count, 0)
+    (0..@rows_count - 1).each do |row|
+      (0..@cols_count - 1).each do |col|
+        @means[col] += @matrix[row][col]
+      end
+    end
+    (0..@means.length - 1).each { |i| @means[i] /= @rows_count }
   end
 end
 # rubocop:enable ClassLength
