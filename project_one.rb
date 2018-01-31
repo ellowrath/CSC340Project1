@@ -63,15 +63,8 @@ class ProjectOne
   def question_two
     sub_class_one = []
     sub_class_two = []
-    cov_mat_one_one = MattMatrix.new
-    cov_mat_one_two = MattMatrix.new
-    cov_mat_two_one = MattMatrix.new
-    cov_mat_two_two = MattMatrix.new
-    cov_mat_one_one.build(@class_one.length, 1)
-    cov_mat_one_two.build(@class_one.length, 1)
-    cov_mat_two_one.build(@class_two.length, 1)
-    cov_mat_two_two.build(@class_two.length, 1)
-    # create the difference vectors
+    sum1 = 0.0
+    sum2 = 0.0
     (0..@class_one.length - 1).each do |row|
       sub_class_one[row] = @class_one[row].map { |e| e.dup }
       sub_class_two[row] = @class_two[row].map { |e| e.dup }
@@ -80,15 +73,24 @@ class ProjectOne
         sub_class_two[row][cell] -= @m_two[cell]
       end
     end
-    # put the difference vectors into MattMatrices
-    (0..@class_one.length - 1).each do |cell|
-      cov_mat_one_one.matrix[cell][0] = sub_class_one[cell][0]
-      cov_mat_one_two.matrix[cell][0] = sub_class_one[cell][1]
-      cov_mat_two_one.matrix[cell][0] = sub_class_two[cell][0]
-      cov_mat_two_one.matrix[cell][0] = sub_class_two[cell][1]
+    (0..@class_one.length - 1).each do |row|
+      temp1 = MattMatrix.new(1, 2)
+      temp2 = MattMatrix.new(1, 2)
+      temp1.matrix[0][0] = sub_class_one[row][0]
+      temp2.matrix[0][0] = sub_class_two[row][0]
+      temp1.matrix[0][1] = sub_class_one[row][1]
+      temp2.matrix[0][1] = sub_class_two[row][1]
+      temp1.calc_covariance
+      temp2.calc_covariance
+      sum1 += temp1.matrix[0][0]
+      sum2 += temp2.matrix[0][0]
     end
-    cov_mat_one_one.calc_covariance
-
+    puts sum1.to_s
+    puts sum2.to_s
+    sum1 /= 110
+    sum2 /= 110
+    puts sum1.to_s
+    puts sum2.to_s
   end
 end
 

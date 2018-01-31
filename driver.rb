@@ -90,9 +90,30 @@ class Driver
     # n.print_matrix
     o.mult_matrices(m, n)
     o.print_matrix
+  end
+
+  def test_covariance
+    m = MattMatrix.new
+    n = MattMatrix.new
+    o = MattMatrix.new
+    p = MattMatrix.new
+    m.build(2, 1)
+    n.build(2, 1)
+    o.build(2, 1)
+    m.matrix[0][0] = 1.431847531
+    m.matrix[1][0] = 0.062360794
+    n.matrix[0][0] = 1.431847531
+    n.matrix[1][0] = 0.062360794
+    o.matrix[0][0] = 1.431847531
+    o.matrix[1][0] = 0.062360794
+    m.calc_covariance
+    m.print_matrix
+    o.transpose
+    p.mult_matrices(n, o)
+    p.print_matrix
 
   end
 end
 
 my_driver = Driver.new
-my_driver.test_matrix_multiplication
+my_driver.test_covariance

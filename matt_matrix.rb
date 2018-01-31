@@ -313,6 +313,16 @@ class MattMatrix
     end
     transpose_temp_vector.transpose
     mult_matrices(temp_vector, transpose_temp_vector)
+=begin
+    k = @rows_count * @cols_count
+    sum = 0
+    (0..@rows_count - 1).each do |row|
+      (0..@cols_count - 1).each do |col|
+        sum += @matrix[row][col]
+      end
+    end
+=end
+
   end
 end
 # rubocop:enable ClassLength
