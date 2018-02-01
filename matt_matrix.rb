@@ -197,7 +197,6 @@ class MattMatrix
       raise 'No unique solution exists' if pivot == -1
       interchange_rows(row, pivot)
       mult_row_by_cons(row, 1/@matrix[row][row])
-      # (row..@rows_count - 1).each do |i_row|
       (0..@rows_count - 1).each do |i_row|
         next if row == i_row
         temp_vec = @matrix[row].map { |e| e.dup }
@@ -237,19 +236,7 @@ class MattMatrix
 
   def inverse
     augment_with_identity
-    (0..@rows_count - 1).each do |row|
-      pivot = calc_pivot row
-      raise 'No unique solution exists' if pivot == -1
-      interchange_rows(row, pivot)
-      mult_row_by_cons(row, 1/@matrix[row][row])
-      (0..@rows_count - 1).each do |i_row|
-        next if row == i_row
-        temp_vec = @matrix[row].map { |e| e.dup }
-        temp_cons = @matrix[i_row][row]
-        mult_row_by_cons(temp_vec, temp_cons)
-        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
-      end
-    end
+    gauss_jordan_elim
     strip_identity
   end
 
@@ -276,10 +263,7 @@ class MattMatrix
     (0..@rows_count - 1).each do |row|
       delta *= @matrix[row][row]
     end
-    # puts delta
-    # puts r
-    delta *= -1**r
-    # puts delta
+    delta *= (-1)**r
   end
 
   def calc_cov_det
@@ -306,24 +290,31 @@ class MattMatrix
   end
 
   # this is a hairy beast
+  # you should simplify this, a lot!
   def calc_covariance
     # in case we haven't calculated our means yet
     calc_mean_vectors if @means.class == NilClass
+    # create a deep copy of our data class
     temp_class = Marshal.load(Marshal.dump(@matrix))
+    # subtract the mean vectors from our copied data class
     (0..temp_class.length - 1).each do |row|
       (0..temp_class[0].length - 1).each do |col|
         temp_class[row][col] -= @means[col]
       end
     end
+    # create my sum accumulator
     sum = MattMatrix.new
     sum.build(temp_class[0].length, temp_class[0].length)
     sum.zero_matrix
+    # create the three vectors needed to compute the sum
     temp_vec_a = MattMatrix.new
     temp_vec_b = MattMatrix.new
     temp_vec_c = MattMatrix.new
     temp_vec_a.build(1, temp_class[0].length)
     temp_vec_b.build(1, temp_class[0].length)
     temp_vec_c.build(temp_class.length, temp_class.length)
+    # temporarily copies the 1x2 vectors into their own vector
+    # to calculate the 2x2 product then accumulated in the sum
     (0..temp_class.length - 1).each do |vec|
       (0..temp_class[0].length - 1).each do |cell|
         temp_vec_a.matrix[0][cell] = temp_class[vec][cell]
@@ -339,11 +330,12 @@ class MattMatrix
         end
       end
     end
+    # create the covariance matrix object
+    # multiply the sum by the 1/k
     @cov_mat = MattMatrix.new
     @cov_mat.build(sum.rows_count, sum.cols_count)
     @cov_mat.zero_matrix
-    scalar = (1/temp_class.length.to_f)
-    sum.mult_scalar_matrix(scalar, cov_mat)
+    sum.mult_scalar_matrix(1/temp_class.length.to_f, cov_mat)
   end
 
   def calc_mean_vectors
