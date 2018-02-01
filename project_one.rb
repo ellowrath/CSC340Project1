@@ -59,9 +59,31 @@ class ProjectOne
     puts "Class Two Covariance Matrix:"
     @class_two.cov_mat.print_matrix
   end
+
+  def quetion_three
+    puts "Question 3:"
+    @class_one.calc_cov_det
+    @class_two.calc_cov_det
+    puts "Class One Determinant of Covariance Matrix:"
+    puts @class_one.cov_det.to_s
+    puts "Class Two Determinant of Covariance Matrix:"
+    puts @class_two.cov_det.to_s
+  end
+
+  def question_four
+    puts "Question 4:"
+    @class_one.calc_cov_inv
+    @class_two.calc_cov_inv
+    puts "Class One Inverse of Covariance Matrix:"
+    @class_one.cov_inv.print_matrix
+    puts "Class Two Inverse of Covariance Matrix:"
+    @class_two.cov_inv.print_matrix
+  end
 end
 
 my_project = ProjectOne.new
 my_project.question_one
 my_project.question_two
+my_project.quetion_three
+my_project.question_four
 

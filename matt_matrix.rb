@@ -15,7 +15,7 @@ require 'csv'
 # rubocop:disable ClassLength
 class MattMatrix
 
-  attr_accessor :rows_count, :cols_count, :matrix, :means, :cov_mat
+  attr_accessor :rows_count, :cols_count, :matrix, :means, :cov_mat, :cov_det, :cov_inv
 
   # a little default matrix
   def initialize(rows_count = 2, cols_count = 2)
@@ -77,6 +77,13 @@ class MattMatrix
         @matrix[row][col] = 1 if row + @rows_count == col
         @matrix[row][col] = 0 if row + @rows_count != col
       end
+    end
+  end
+
+  def strip_identity
+    @cols_count /= 2
+    (0..@rows_count - 1).each do |row|
+      @matrix[row].shift(@cols_count)
     end
   end
 
@@ -243,6 +250,7 @@ class MattMatrix
         (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
       end
     end
+    strip_identity
   end
 
   def determinant
@@ -268,10 +276,19 @@ class MattMatrix
     (0..@rows_count - 1).each do |row|
       delta *= @matrix[row][row]
     end
-    puts delta
-    puts r
+    # puts delta
+    # puts r
     delta *= -1**r
-    puts delta
+    # puts delta
+  end
+
+  def calc_cov_det
+    @cov_det = @cov_mat.determinant
+  end
+
+  def calc_cov_inv
+    @cov_inv = Marshal.load(Marshal.dump(@cov_mat))
+    @cov_inv.inverse
   end
 
   # this is shit, look up a better way
