@@ -1,17 +1,13 @@
 require_relative 'matt_matrix'
 class ProjectOne
 
-  attr_reader :class_one, :class_two, :m_one, :m_two
+  attr_reader :class_one, :class_two
 
   def initialize
-    m_one = []
-    m_two = []
     class_one = MattMatrix.new
     class_two = MattMatrix.new
     @class_one = class_one
     @class_two = class_two
-    @m_one = m_one
-    @m_two = m_two
   end
 
   def pull_data(file_name)
@@ -42,48 +38,30 @@ class ProjectOne
   end
 
   def question_one
+    puts "Question 1:"
     pull_data'data.txt'
     @class_one.calc_mean_vectors
     @class_two.calc_mean_vectors
+    puts "Mean Vectors:"
+    puts "Class One Mean Vector:"
     puts @class_one.means.to_s
+    puts "Class Two Mean Vector:"
     puts @class_two.means.to_s
+    puts ""
   end
 
   def question_two
-    sub_class_one = []
-    sub_class_two = []
-    sum1 = 0.0
-    sum2 = 0.0
-    (0..@class_one.length - 1).each do |row|
-      sub_class_one[row] = @class_one[row].map { |e| e.dup }
-      sub_class_two[row] = @class_two[row].map { |e| e.dup }
-      (0..sub_class_one[row].length - 1).each do |cell|
-        sub_class_one[row][cell] -= @m_one[cell]
-        sub_class_two[row][cell] -= @m_two[cell]
-      end
-    end
-    (0..@class_one.length - 1).each do |row|
-      temp1 = MattMatrix.new(2, 1)
-      temp2 = MattMatrix.new(2, 1)
-      temp1.matrix[0][0] = sub_class_one[row][0]
-      temp2.matrix[0][0] = sub_class_two[row][0]
-      temp1.matrix[1][0] = sub_class_one[row][1]
-      temp2.matrix[1][0] = sub_class_two[row][1]
-      temp1.calc_covariance
-      temp2.calc_covariance
-      # sum1 += temp1.matrix[0][0]
-      # sum2 += temp2.matrix[0][0]
-    end
-    # puts sum1.to_s
-    # puts sum2.to_s
-    # sum1 /= 110
-    # sum2 /= 110
-    # puts sum1.to_s
-    # puts sum2.to_s
+    puts "Question 2:"
+    @class_one.calc_covariance
+    @class_two.calc_covariance
+    puts "Class One Covariance Matrix:"
+    @class_one.cov_mat.print_matrix
+    puts "Class Two Covariance Matrix:"
+    @class_two.cov_mat.print_matrix
   end
 end
 
 my_project = ProjectOne.new
 my_project.question_one
-# my_project.question_two
+my_project.question_two
 

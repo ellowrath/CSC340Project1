@@ -15,7 +15,7 @@ require 'csv'
 # rubocop:disable ClassLength
 class MattMatrix
 
-  attr_accessor :rows_count, :cols_count, :matrix, :means
+  attr_accessor :rows_count, :cols_count, :matrix, :means, :cov_mat
 
   # a little default matrix
   def initialize(rows_count = 2, cols_count = 2)
@@ -288,29 +288,45 @@ class MattMatrix
     end
   end
 
-  # this is very bad
-  # in order for this to work, the provided matrix
-  # must be n by 1
+  # this is a hairy beast
   def calc_covariance
-    temp_vector = MattMatrix.new
-    transpose_temp_vector = MattMatrix.new
-    temp_vector.build(@rows_count, 1)
-    transpose_temp_vector.build(@rows_count, 1)
-    (0..@rows_count - 1).each do |cell|
-      temp_vector.matrix[cell] = @matrix[cell].dup
-      transpose_temp_vector.matrix[cell] = @matrix[cell].dup
-    end
-    transpose_temp_vector.transpose
-    mult_matrices(temp_vector, transpose_temp_vector)
-=begin
-    k = @rows_count * @cols_count
-    sum = 0
-    (0..@rows_count - 1).each do |row|
-      (0..@cols_count - 1).each do |col|
-        sum += @matrix[row][col]
+    # in case we haven't calculated our means yet
+    calc_mean_vectors if @means.class == NilClass
+    temp_class = Marshal.load(Marshal.dump(@matrix))
+    (0..temp_class.length - 1).each do |row|
+      (0..temp_class[0].length - 1).each do |col|
+        temp_class[row][col] -= @means[col]
       end
     end
-=end
+    sum = MattMatrix.new
+    sum.build(temp_class[0].length, temp_class[0].length)
+    sum.zero_matrix
+    temp_vec_a = MattMatrix.new
+    temp_vec_b = MattMatrix.new
+    temp_vec_c = MattMatrix.new
+    temp_vec_a.build(1, temp_class[0].length)
+    temp_vec_b.build(1, temp_class[0].length)
+    temp_vec_c.build(temp_class.length, temp_class.length)
+    (0..temp_class.length - 1).each do |vec|
+      (0..temp_class[0].length - 1).each do |cell|
+        temp_vec_a.matrix[0][cell] = temp_class[vec][cell]
+      end
+      temp_vec_b = temp_vec_a.clone
+      temp_vec_a.transpose
+      temp_vec_c.mult_matrices(temp_vec_a, temp_vec_b)
+      # need to reset this one, or it'll 'rotate'
+      temp_vec_a.build(1, temp_class[0].length)
+      (0..temp_vec_c.rows_count - 1).each do |row|
+        (0..temp_vec_c.cols_count - 1).each do |col|
+          sum.matrix[row][col] += temp_vec_c.matrix[row][col] if row == col
+        end
+      end
+    end
+    @cov_mat = MattMatrix.new
+    @cov_mat.build(sum.rows_count, sum.cols_count)
+    @cov_mat.zero_matrix
+    scalar = (1/temp_class.length.to_f)
+    sum.mult_scalar_matrix(scalar, cov_mat)
   end
 
   def calc_mean_vectors
