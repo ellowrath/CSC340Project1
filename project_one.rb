@@ -68,6 +68,7 @@ class ProjectOne
     puts @class_one.cov_det.to_s
     puts "Class Two Determinant of Covariance Matrix:"
     puts @class_two.cov_det.to_s
+    puts ""
   end
 
   def question_four

@@ -335,7 +335,7 @@ class MattMatrix
       temp_vec_a.build(1, temp_class[0].length)
       (0..temp_vec_c.rows_count - 1).each do |row|
         (0..temp_vec_c.cols_count - 1).each do |col|
-          sum.matrix[row][col] += temp_vec_c.matrix[row][col] if row == col
+          sum.matrix[row][col] += temp_vec_c.matrix[row][col]
         end
       end
     end
