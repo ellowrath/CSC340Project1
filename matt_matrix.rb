@@ -163,8 +163,8 @@ class MattMatrix
 
   # The way I handled this is a little confusing.
   def mult_row_by_cons(row, cons)
-    (0..@cols_count - 1).each { |col| @matrix[row][col] = @matrix[row][col] * cons } if row.class == Integer
-    (0..row.length - 1).each { |col| row[col] = row[col] * cons } if row.class == Array
+    (0..@cols_count - 1).each { |col| @matrix[row][col] *= cons } if row.class == Integer
+    (0..row.length - 1).each { |col| row[col] *= cons } if row.class == Array
   end
 
   def calc_pivot index
@@ -197,12 +197,12 @@ class MattMatrix
       raise 'No unique solution exists' if pivot == -1
       interchange_rows(row, pivot)
       mult_row_by_cons(row, 1/@matrix[row][row])
+      temp_vec = @matrix[row].map { |e| e.dup }
       (0..@rows_count - 1).each do |i_row|
         next if row == i_row
-        temp_vec = @matrix[row].map { |e| e.dup }
         temp_cons = @matrix[i_row][row]
         mult_row_by_cons(temp_vec, temp_cons)
-        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
+        (0..@cols_count - 1).each { |c| @matrix[i_row][c] -= temp_vec[c] }
       end
     end
   end

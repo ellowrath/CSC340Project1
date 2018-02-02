@@ -113,7 +113,36 @@ class Driver
     p.print_matrix
 
   end
+
+  def test_gauss_jordan
+    m = MattMatrix.new
+    m.build(3, 4)
+    m.matrix[0] = [4.0, -2.0, 1.0, 11.0]
+    m.matrix[1] = [8.0, 5.0, -4.0, 14.0]
+    m.matrix[2] = [-3.0, 1.0, 5.0, 10.0]
+    m.print_matrix
+    m.gauss_jordan_elim
+    m.print_matrix
+  end
+
+  def test_gj_inverse
+    m = MattMatrix.new
+    n = MattMatrix.new
+    m.build(2, 2)
+    rand_fill(m)
+    n = Marshal.load(Marshal.dump(m))
+    puts "m: "
+    m.print_matrix
+    puts "n: "
+    n.print_matrix
+    m.gauss_jordan_elim
+    n.inverse
+    puts "m: "
+    m.print_matrix
+    puts "n: "
+    n.print_matrix
+  end
 end
 
 my_driver = Driver.new
-my_driver.test_covariance
+my_driver.test_gauss_jordan
