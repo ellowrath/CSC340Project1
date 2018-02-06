@@ -91,21 +91,7 @@ class ProjectOne
 
   # question five is a mess, I'm not sure what is wanted here
   def question_five
-    super2 = "\u00B2"
-    puts "Class One:"
-    con1 = @class_one.means[0] * @class_one.cov_inv.matrix[0][0]
-    con2 = @class_one.means[0] * @class_one.cov_inv.matrix[1][0]
-    con3 = @class_one.means[1] * @class_one.cov_inv.matrix[0][1]
-    con4 = @class_one.means[1] * @class_one.cov_inv.matrix[1][1]
-    a = (@class_one.cov_inv.matrix[0][0] + @class_one.cov_inv.matrix[0][1]).to_s
-    b = (con1 + con2).to_s
-    c = (@class_one.cov_inv.matrix[1][0] + @class_one.cov_inv.matrix[1][1]).to_s
-    d = (con3 + con4).to_s
-    e = @class_one.means[0].to_s
-    f = @class_one.means[1].to_s
-    x1 = "x1"
-    x2 = "x2"
-    puts a+"("+x1+")"+super2.encode('utf-8')+"-"+a+"("+x1+")"+e+"-"+b+"("+x1+")"+b+"*"+e
+    puts "See turned in Project Sheet."
   end
 
   def question_six
@@ -113,14 +99,30 @@ class ProjectOne
     test = Array.new(1) { Array.new (2) }
     answer = []
     (0..@class_one.rows_count - 1).each do |row|
-      test[0][0] = @class_one.matrix[row][0]
-      test[0][1] = @class_one.matrix[row][1]
-      if @class_one.discriminant(test) > @class_two.discriminant(test)
+      test[0][0] = Marshal.load(Marshal.dump(@class_one.matrix[row][0]))
+      test[0][1] = Marshal.load(Marshal.dump(@class_one.matrix[row][1]))
+      test1 = @class_one.discriminant(test)
+      test2 = @class_two.discriminant(test)
+      # if @class_one.discriminant(test) > @class_two.discriminant(test)
+      if test1 > test2
         # from Class One, classified as Class One
-        answer.append([test, "Class One", "Class One"])
+        temp =  Marshal.load(Marshal.dump(test))
+        answer.append([temp, "Class One", "Class One"])
         # from Class One, classified as Class Two
       else
-        answer.append(test, "Class One", "Class Two")
+        answer.append([temp, "Class One", "Class Two"])
+      end
+      test[0][0] = Marshal.load(Marshal.dump(@class_two.matrix[row][0]))
+      test[0][1] = Marshal.load(Marshal.dump(@class_two.matrix[row][1]))
+      test1 = @class_one.discriminant(test)
+      test2 = @class_two.discriminant(test)
+      if test1 > test2
+        # from Class One, classified as Class One
+        temp =  Marshal.load(Marshal.dump(test))
+        answer.append([temp, "Class Two", "Class One"])
+        # from Class One, classified as Class Two
+      else
+        answer.append([temp, "Class Two", "Class Two"])
       end
 
     end
