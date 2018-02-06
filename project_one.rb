@@ -1,13 +1,17 @@
 require_relative 'matt_matrix'
 class ProjectOne
 
-  attr_reader :class_one, :class_two
+  attr_reader :class_one, :class_two, :class_one_result, :class_two_result
 
   def initialize
     class_one = MattMatrix.new
     class_two = MattMatrix.new
+    class_one_result = []
+    class_two_result = []
     @class_one = class_one
     @class_two = class_two
+    @class_one_result = class_one_result
+    @class_two_result = class_two_result
   end
 
   def pull_data(file_name)
@@ -102,19 +106,25 @@ class ProjectOne
     x1 = "x1"
     x2 = "x2"
     puts a+"("+x1+")"+super2.encode('utf-8')+"-"+a+"("+x1+")"+e+"-"+b+"("+x1+")"+b+"*"+e
-
-
-
-
   end
 
   def question_six
     puts "Question Six:"
     test = Array.new(1) { Array.new (2) }
-    test[0][0] = @class_one.matrix[0][0]
-    test[0][1] = @class_one.matrix[0][1]
-    @class_one.discriminant(test)
+    answer = []
+    (0..@class_one.rows_count - 1).each do |row|
+      test[0][0] = @class_one.matrix[row][0]
+      test[0][1] = @class_one.matrix[row][1]
+      if @class_one.discriminant(test) > @class_two.discriminant(test)
+        # from Class One, classified as Class One
+        answer.append([test, "Class One", "Class One"])
+        # from Class One, classified as Class Two
+      else
+        answer.append(test, "Class One", "Class Two")
+      end
 
+    end
+    p answer
   end
 end
 

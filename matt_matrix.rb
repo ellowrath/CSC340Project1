@@ -1,12 +1,8 @@
 =begin
 
-Look, this thing is kind of shit
-should probably redo with structs
-
 Creating a MattMatrix with no arguments gets you a 2x2 zero matrix.
-A MattMatrix is not necessarily a good matrix.
-A MattMatrix is more like a dangerous playground, where matrices can go
-and get mixed up with other matrices.
+A MattMatrix is not a matrix.
+A MattMatrix is a container of matrix solutions for CSC 340 Project 1.
 
 =end
 
@@ -360,7 +356,7 @@ class MattMatrix
     vec1.build(1, 2)
     vec1.matrix[0][0] = test[0][0] - @means[0]
     vec1.matrix[0][1] = test[0][1] - @means[1]
-    @cov_inv.print_matrix
+    # @cov_inv.print_matrix
     # first multiplication
     vec2.mult_matrices(vec1, @cov_inv)
     vec1.transpose
