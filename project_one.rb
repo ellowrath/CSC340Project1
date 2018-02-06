@@ -94,39 +94,52 @@ class ProjectOne
     puts "See turned in Project Sheet."
   end
 
+  # question six is actually about classification
+  # question seven is about misclassification
+  # fix this
   def question_six
     puts "Question Six:"
     test = Array.new(1) { Array.new (2) }
+    misclassified = []
     answer = []
     (0..@class_one.rows_count - 1).each do |row|
       test[0][0] = Marshal.load(Marshal.dump(@class_one.matrix[row][0]))
       test[0][1] = Marshal.load(Marshal.dump(@class_one.matrix[row][1]))
       test1 = @class_one.discriminant(test)
       test2 = @class_two.discriminant(test)
-      # if @class_one.discriminant(test) > @class_two.discriminant(test)
+      # shallow copy is fine for comparisons, but deep copy needed to
+      # append to an array
+      temp =  Marshal.load(Marshal.dump(test))
       if test1 > test2
         # from Class One, classified as Class One
-        temp =  Marshal.load(Marshal.dump(test))
         answer.append([temp, "Class One", "Class One"])
-        # from Class One, classified as Class Two
       else
+        # from Class One, classified as Class Two
         answer.append([temp, "Class One", "Class Two"])
       end
       test[0][0] = Marshal.load(Marshal.dump(@class_two.matrix[row][0]))
       test[0][1] = Marshal.load(Marshal.dump(@class_two.matrix[row][1]))
       test1 = @class_one.discriminant(test)
       test2 = @class_two.discriminant(test)
+      temp =  Marshal.load(Marshal.dump(test))
       if test1 > test2
         # from Class One, classified as Class One
-        temp =  Marshal.load(Marshal.dump(test))
         answer.append([temp, "Class Two", "Class One"])
         # from Class One, classified as Class Two
       else
         answer.append([temp, "Class Two", "Class Two"])
       end
-
     end
-    p answer
+    (0..answer.length - 1).each do |index|
+      if answer[index][1] != answer[index][2]
+        misclassified.push(answer[index])
+      end
+    end
+    puts "Number of misclassified points: " + misclassified.length.to_s
+    puts "Point, actual class, classified class: "
+    (0..misclassified.length - 1).each do |row|
+      puts misclassified[row].to_s
+    end
   end
 end
 
