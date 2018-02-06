@@ -358,17 +358,21 @@ class MattMatrix
     l1 = 0.5 * Math.log(@cov_det)
     l2 = Math.log(0.5)
     vec1.build(1, 2)
-    vec1.matrix[0] = test[0] - @means[0]
-    vec1.matrix[1] = test[1] - @means[1]
-    vec1.print_matrix
+    vec1.matrix[0][0] = test[0][0] - @means[0]
+    vec1.matrix[0][1] = test[0][1] - @means[1]
     @cov_inv.print_matrix
+    # first multiplication
     vec2.mult_matrices(vec1, @cov_inv)
-    vec1.inverse
+    vec1.transpose
+    # second multiplication
     vec3.mult_matrices(vec2, vec1)
     vec3.mult_scalar_matrix(-0.5, vec3)
-    # vec3.print_matrix
-
-
+    # vec3 should just be a single value now
+    # and I should extract that from my shitty matrix implementation
+    value = vec3.matrix[0][0]
+    value -= l1
+    value += l2
+    value
   end
 end
 # rubocop:enable ClassLength

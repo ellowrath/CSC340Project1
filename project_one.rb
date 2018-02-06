@@ -110,7 +110,9 @@ class ProjectOne
 
   def question_six
     puts "Question Six:"
-    test = [@class_one.matrix[0][0], @class_one.matrix[0][1]]
+    test = Array.new(1) { Array.new (2) }
+    test[0][0] = @class_one.matrix[0][0]
+    test[0][1] = @class_one.matrix[0][1]
     @class_one.discriminant(test)
 
   end

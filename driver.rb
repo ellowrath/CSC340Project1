@@ -148,9 +148,16 @@ class Driver
     n = MattMatrix.new
     o = MattMatrix.new
     m.build(1, 2)
-    n.build(2, 1)
-    rand_fill(m)
-    rand_fill(n)
+    n.build(2, 2)
+    # rand_fill(m)
+    # rand_fill(n)
+    m.matrix[0][0] = 2.0
+    m.matrix[0][1] = 4.0
+    n.matrix[0][0] = 2.0
+    n.matrix[0][1] = 4.0
+    n.matrix[1][0] = 2.0
+    n.matrix[1][1] = 4.0
+
     m.print_matrix
     n.print_matrix
     o.mult_matrices(m, n)
