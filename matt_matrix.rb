@@ -347,5 +347,28 @@ class MattMatrix
     end
     (0..@means.length - 1).each { |i| @means[i] /= @rows_count }
   end
+
+  # here's where the magic happens
+  # test is a vector of two floats
+  # representing a point
+  def discriminant test
+    vec1 = MattMatrix.new
+    vec2 = MattMatrix.new
+    vec3 = MattMatrix.new
+    l1 = 0.5 * Math.log(@cov_det)
+    l2 = Math.log(0.5)
+    vec1.build(1, 2)
+    vec1.matrix[0] = test[0] - @means[0]
+    vec1.matrix[1] = test[1] - @means[1]
+    vec1.print_matrix
+    @cov_inv.print_matrix
+    vec2.mult_matrices(vec1, @cov_inv)
+    vec1.inverse
+    vec3.mult_matrices(vec2, vec1)
+    vec3.mult_scalar_matrix(-0.5, vec3)
+    # vec3.print_matrix
+
+
+  end
 end
 # rubocop:enable ClassLength

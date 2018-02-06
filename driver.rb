@@ -142,7 +142,22 @@ class Driver
     puts "n: "
     n.print_matrix
   end
+
+  def test
+    m = MattMatrix.new
+    n = MattMatrix.new
+    o = MattMatrix.new
+    m.build(1, 2)
+    n.build(2, 1)
+    rand_fill(m)
+    rand_fill(n)
+    m.print_matrix
+    n.print_matrix
+    o.mult_matrices(m, n)
+    o.print_matrix
+
+  end
 end
 
 my_driver = Driver.new
-my_driver.test_gauss_jordan
+my_driver.test
