@@ -99,7 +99,7 @@ class ProjectOne
   # fix this
   def question_six
     puts "Question Six:"
-    test = Array.new(1) { Array.new (2) }
+    test = Array.new(1) { Array.new(2) }
     misclassified = []
     answer = []
     (0..@class_one.rows_count - 1).each do |row|
@@ -140,6 +140,10 @@ class ProjectOne
     (0..misclassified.length - 1).each do |row|
       puts misclassified[row].to_s
     end
+  end
+
+  def question_seven
+
   end
 end
 
