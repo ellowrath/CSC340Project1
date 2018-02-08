@@ -1,7 +1,7 @@
 require_relative 'matt_matrix'
 class ProjectOne
 
-  attr_reader :class_one, :class_two, :class_one_result, :class_two_result
+  attr_reader :class_one, :class_two, :class_one_result, :class_two_result, :classified, :misclassified
 
   def initialize
     class_one = MattMatrix.new
@@ -12,6 +12,8 @@ class ProjectOne
     @class_two = class_two
     @class_one_result = class_one_result
     @class_two_result = class_two_result
+    @classified = classified
+    @misclassified = misclassified
   end
 
   def pull_data(file_name)
@@ -30,15 +32,6 @@ class ProjectOne
       @class_two.matrix[line][0] = file[line][2]
       @class_two.matrix[line][1] = file[line][3]
     end
-  end
-
-  # doesn't work
-  def print_all_data
-    puts 'class_one length: ' + @class_one.length.to_s
-    puts 'class_two length: ' + @class_two.length.to_s
-    (0..@class_one.length - 1).each { |row| puts @class_one[row].to_s + ' ' + @class_two[row].to_s }
-    puts 'mean for class one, : ' + @m_one.to_s
-    puts 'mean for class two: ' + @m_two.to_s
   end
 
   def question_one
@@ -89,19 +82,16 @@ class ProjectOne
     @class_two.cov_inv.print_matrix
   end
 
-  # question five is a mess, I'm not sure what is wanted here
   def question_five
     puts "See turned in Project Sheet."
   end
 
-  # question six is actually about classification
-  # question seven is about misclassification
-  # fix this
   def question_six
-    puts "Question Six:"
+    c1 = 0
+    c2 = 0
     test = Array.new(1) { Array.new(2) }
-    misclassified = []
-    answer = []
+    @misclassified = []
+    @classified = []
     (0..@class_one.rows_count - 1).each do |row|
       test[0][0] = Marshal.load(Marshal.dump(@class_one.matrix[row][0]))
       test[0][1] = Marshal.load(Marshal.dump(@class_one.matrix[row][1]))
@@ -112,10 +102,12 @@ class ProjectOne
       temp =  Marshal.load(Marshal.dump(test))
       if test1 > test2
         # from Class One, classified as Class One
-        answer.append([temp, "Class One", "Class One"])
+        @classified.append([temp, "Class One", "Class One"])
+        c1 += 1
       else
         # from Class One, classified as Class Two
-        answer.append([temp, "Class One", "Class Two"])
+        @classified.append([temp, "Class One", "Class Two"])
+        c2 += 1
       end
       test[0][0] = Marshal.load(Marshal.dump(@class_two.matrix[row][0]))
       test[0][1] = Marshal.load(Marshal.dump(@class_two.matrix[row][1]))
@@ -124,26 +116,74 @@ class ProjectOne
       temp =  Marshal.load(Marshal.dump(test))
       if test1 > test2
         # from Class One, classified as Class One
-        answer.append([temp, "Class Two", "Class One"])
-        # from Class One, classified as Class Two
+        @classified.append([temp, "Class Two", "Class One"])
+        c1 += 1
       else
-        answer.append([temp, "Class Two", "Class Two"])
+        # from Class One, classified as Class Two
+        @classified.append([temp, "Class Two", "Class Two"])
+        c2 += 1
       end
     end
-    (0..answer.length - 1).each do |index|
-      if answer[index][1] != answer[index][2]
-        misclassified.push(answer[index])
-      end
+    puts "Question Six:"
+    puts "Number of points classified as Class One: " + c1.to_s
+    puts "Number of points classified as Class Two: " + c2.to_s
+    puts "Points Classified as Class One:"
+    (0..@classified.length - 1).each do |index|
+      puts @classified[index][0].to_s if @classified[index][2] == "Class One"
     end
-    puts "Number of misclassified points: " + misclassified.length.to_s
-    puts "Point, actual class, classified class: "
-    (0..misclassified.length - 1).each do |row|
-      puts misclassified[row].to_s
+    puts ""
+    puts "Points Classified as Class Two:"
+    (0..@classified.length - 1).each do |index|
+      puts @classified[index][0].to_s if @classified[index][2] == "Class Two"
     end
+    puts ""
   end
 
   def question_seven
+    puts "Question Seven: "
+    (0..@classified.length - 1).each do |index|
+      if @classified[index][1] != @classified[index][2]
+        @misclassified.push(@classified[index])
+      end
+    end
+    puts "Number of misclassified points: " + @misclassified.length.to_s
+    puts "Point \t\t\t\t\t\t\tactual class classified class: "
+    (0..@misclassified.length - 1).each do |row|
+      puts @misclassified[row].to_s
+    end
+    puts ""
+  end
 
+  def question_eight
+    # mark my boundary
+    left = 0.5
+    up = 4.0
+    right = 2.5
+    down = -2.0
+    inc = 0.005
+    boundary = []
+    # massage this
+    epsilon = 0.01
+    (down...up).step(inc).each do |y_value|
+      (left...right).step(inc).each do |x_value|
+        test = [[x_value, y_value]]
+        dif = (@class_one.discriminant(test) - @class_two.discriminant(test)).abs
+        boundary.append(test) if dif < epsilon
+      end
+    end
+    puts "Question Eight:"
+    puts "Boundary points for Plotting:"
+    (0..boundary.length - 1).each do |index|
+      puts boundary[index][0].to_s
+    end
+    puts "X values"
+    (0...boundary.length).each do |index|
+      puts boundary[index][0][0].to_s
+    end
+    puts "Y values"
+    (0...boundary.length).each do |index|
+      puts boundary[index][0][1].to_s
+    end
   end
 end
 
@@ -154,3 +194,5 @@ my_project.question_three
 my_project.question_four
 # my_project.question_five
 my_project.question_six
+my_project.question_seven
+my_project.question_eight

@@ -351,6 +351,7 @@ class MattMatrix
     vec1 = MattMatrix.new
     vec2 = MattMatrix.new
     vec3 = MattMatrix.new
+    # lower case L-one and L-two
     l1 = 0.5 * Math.log(@cov_det)
     l2 = Math.log(0.5)
     vec1.build(1, 2)
@@ -366,6 +367,7 @@ class MattMatrix
     # vec3 should just be a single value now
     # and I should extract that from my shitty matrix implementation
     value = vec3.matrix[0][0]
+    # lower case L-one and L-two
     value -= l1
     value += l2
     value
