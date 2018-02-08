@@ -167,4 +167,4 @@ class Driver
 end
 
 my_driver = Driver.new
-my_driver.test
+my_driver.test_gauss_jordan

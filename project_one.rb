@@ -73,8 +73,8 @@ class ProjectOne
     @class_one.calc_cov_inv
     @class_two.calc_cov_inv
     # the following is a cheat, so I can finish the rest of the test
-    @class_one.cov_inv.matrix[1][0] = @class_one.cov_inv.matrix[0][1]
-    @class_two.cov_inv.matrix[1][0] = @class_two.cov_inv.matrix[0][1]
+    # @class_one.cov_inv.matrix[1][0] = @class_one.cov_inv.matrix[0][1]
+    # @class_two.cov_inv.matrix[1][0] = @class_two.cov_inv.matrix[0][1]
     # back to not cheating
     puts "Class One Inverse of Covariance Matrix:"
     @class_one.cov_inv.print_matrix
@@ -176,14 +176,36 @@ class ProjectOne
     (0..boundary.length - 1).each do |index|
       puts boundary[index][0].to_s
     end
-    puts "X values"
-    (0...boundary.length).each do |index|
-      puts boundary[index][0][0].to_s
-    end
-    puts "Y values"
-    (0...boundary.length).each do |index|
-      puts boundary[index][0][1].to_s
-    end
+    # for easier copy and paste into excel
+    # puts "X values"
+    # (0...boundary.length).each do |index|
+    #   puts boundary[index][0][0].to_s
+    # end
+    # puts "Y values"
+    # (0...boundary.length).each do |index|
+    #   puts boundary[index][0][1].to_s
+    # end
+    puts ""
+  end
+
+  def question_nine
+    puts "Question Nine:"
+    puts "Gauss-Jordan Elimination"
+    q9 = MattMatrix.new
+    # augment the matrix with another column to track answers
+    q9.build(8, 8)
+    q9.matrix[0] = [2.0, 1.0, -1.0, -1.0, 1.0, 0.0, -1.0, -1.0, 1.0]
+    q9.matrix[1] = [1.0, 0.0, 2.0, 0.0, -1.0, -2.0, 2.0, 2.0, -1.0]
+    q9.matrix[2] = [0.0, -2.0, 5.0, 4.0, -1.0, 0.0, 3.0, 1.0, 2.0]
+    q9.matrix[3] = [1.0, 1.0, -7.0, 2.0, 2.0, 1.0, -1.0, 0.0, -2.0]
+    q9.matrix[4] = [1.0, 1.0, 2.0, 3.0, -2.0, 2.0, 2.0, 9.0, 3.0]
+    q9.matrix[5] = [0.0, -3.0, -2.0, 2.0, 0.0, 2.0, 4.0, -5.0, -3.0]
+    q9.matrix[6] = [-2.0, 5.0, -1.0, 1.0, 1.0, 3.0, 0.0, -2.0, 4.0]
+    q9.matrix[7] = [1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 1.0, 1.0, -4.0]
+
+    q9.gauss_jordan_elim
+    q9.print_matrix
+
   end
 end
 
@@ -196,3 +218,4 @@ my_project.question_four
 my_project.question_six
 my_project.question_seven
 my_project.question_eight
+my_project.question_nine

@@ -152,9 +152,9 @@ class MattMatrix
   # re-write this to do a deep copy, this .clone might cause
   # problems down the line
   def interchange_rows(row_index_a, row_index_b)
-    temp = @matrix[row_index_a].clone
-    @matrix[row_index_a] = @matrix[row_index_b].clone
-    @matrix[row_index_b] = temp.clone
+    temp = Marshal.load(Marshal.dump(@matrix[row_index_a]))
+    @matrix[row_index_a] = Marshal.load(Marshal.dump(@matrix[row_index_b]))
+    @matrix[row_index_b] = Marshal.load(Marshal.dump(temp))
   end
 
   # The way I handled this is a little confusing.
@@ -169,7 +169,7 @@ class MattMatrix
     # -1 because I'm returning an index, and index 0 very possibly could
     # be the pivot index
     p_index = -1
-    p_value = 0.0 # might have to make this much smaller
+    p_value = 0.0
     (row..@rows_count - 1).each do |r_index|
       if @matrix[r_index][col].abs > p_value
         p_value = @matrix[r_index][col]
@@ -189,16 +189,16 @@ class MattMatrix
   # here's the bad boy
   def gauss_jordan_elim
     (0..@rows_count - 1).each do |row|
-      pivot = calc_pivot row
+      pivot = calc_pivot(row)
       raise 'No unique solution exists' if pivot == -1
-      interchange_rows(row, pivot)
+      interchange_rows(row, pivot) if pivot > row
       mult_row_by_cons(row, 1/@matrix[row][row])
-      temp_vec = @matrix[row].map { |e| e.dup }
       (0..@rows_count - 1).each do |i_row|
         next if row == i_row
+        temp_vec = @matrix[row].clone
         temp_cons = @matrix[i_row][row]
         mult_row_by_cons(temp_vec, temp_cons)
-        (0..@cols_count - 1).each { |c| @matrix[i_row][c] -= temp_vec[c] }
+        (0..@cols_count - 1).each { |c| @matrix[i_row][c] = @matrix[i_row][c] - temp_vec[c] }
       end
     end
   end
