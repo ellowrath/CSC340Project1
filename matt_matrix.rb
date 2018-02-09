@@ -23,7 +23,7 @@ class MattMatrix
 
   # build a matrix according to provided dimensions
   # if called on a matrix that already exists, you might
-  # lose data, or retail data
+  # lose data
   # call zero_matrix after
   def build(r, c)
     @rows_count = r
@@ -52,6 +52,8 @@ class MattMatrix
     @matrix
   end
 
+  # turns an existing square matrix into
+  # an identity matrix
   # don't call on something important
   def make_identity
     raise 'Matrix not square.' unless @rows_count == @cols_count
@@ -76,6 +78,9 @@ class MattMatrix
     end
   end
 
+  # if you calculated an inverse correctly, you should
+  # get rid of that nasty identity matrix in front of
+  # the inverse
   def strip_identity
     @cols_count /= 2
     (0..@rows_count - 1).each do |row|
@@ -100,7 +105,7 @@ class MattMatrix
   end
 
   # self + src = dest
-  # you can name the first matrix to store result in self ( like a += )
+  # you can name the first matrix to store result in self ( as in += )
   def add_matrices(src, dest)
     raise 'Must be conformable matrices' unless conformable_add? src
     raise 'Must be conformable matrices' unless conformable_add? dest
@@ -112,7 +117,7 @@ class MattMatrix
   end
 
   # self - src = dest
-  # you can name the first matrix to store result in self ( like a -= )
+  # you can name the first matrix to store result in self ( as in -= )
   def sub_matrices(src, dest)
     raise 'Must be conformable matrices' unless conformable_add? src
     raise 'Must be conformable matrices' unless conformable_add? dest
@@ -124,6 +129,8 @@ class MattMatrix
   end
 
   # src * dest = self
+  # you cannot name the first matrix to store the result in self
+  # THERE IS NO *=
   def mult_matrices(src1, src2)
     conformable_mult? src1, src2
     build(src1.rows_count, src2.cols_count)
@@ -139,7 +146,7 @@ class MattMatrix
     end
   end
 
-  # I think you can put self into dest for a *=
+  # multiplies a matrix by a scalar
   def mult_scalar_matrix(scalar, dest)
     (0..@rows_count - 1).each do |row|
       (0..@cols_count - 1).each do |column|
@@ -149,20 +156,22 @@ class MattMatrix
   end
 
   # for swapping two rows' positions in the matrix
-  # re-write this to do a deep copy, this .clone might cause
-  # problems down the line
   def interchange_rows(row_index_a, row_index_b)
     temp = Marshal.load(Marshal.dump(@matrix[row_index_a]))
     @matrix[row_index_a] = Marshal.load(Marshal.dump(@matrix[row_index_b]))
     @matrix[row_index_b] = Marshal.load(Marshal.dump(temp))
   end
 
-  # The way I handled this is a little confusing.
+  # multiplies a row by a constant
+  # if the row is an integer, it is an index, and the row
+  # at that index will be multiplied
+  # if the row is an array that array is multiplied
   def mult_row_by_cons(row, cons)
     (0..@cols_count - 1).each { |col| @matrix[row][col] *= cons } if row.class == Integer
     (0..row.length - 1).each { |col| row[col] *= cons } if row.class == Array
   end
 
+  # calculates a pivot index for whatever gauss-jordan and gaussian eliminations
   def calc_pivot index
     row = index
     col = index
@@ -186,7 +195,7 @@ class MattMatrix
     puts ""
   end
 
-  # here's the bad boy
+  # reduces a matrix with the gauss-jordan method
   def gauss_jordan_elim
     (0..@rows_count - 1).each do |row|
       pivot = calc_pivot(row)
@@ -203,6 +212,7 @@ class MattMatrix
     end
   end
 
+  # reduces a matrix with the gaussian method
   def gaussian_elim
     ans = []
     (0..@rows_count - 1).each do |row|
@@ -230,11 +240,13 @@ class MattMatrix
     puts ""
   end
 
+  # uses the gauss-jordan method of reduction to find the inverse of a matrix
   def inverse
     augment_with_identity
     gauss_jordan_elim
     strip_identity
   end
+
 
   def determinant
     r = 0
@@ -262,16 +274,18 @@ class MattMatrix
     delta *= (-1)**r
   end
 
+  # calculates the determinant of the covariance matrix
   def calc_cov_det
     @cov_det = @cov_mat.determinant
   end
 
+  # calculates the inverse of the covariance matrix
   def calc_cov_inv
     @cov_inv = Marshal.load(Marshal.dump(@cov_mat))
     @cov_inv.inverse
   end
 
-  # this is shit, look up a better way
+  # transposes a matrix
   def transpose
     new_rows_count = @cols_count
     new_cols_count = @rows_count
@@ -285,8 +299,8 @@ class MattMatrix
     end
   end
 
-  # this is a hairy beast
-  # you should simplify this, a lot!
+  # takes the raw data, calculates and stores the covariance matrix
+  # for that data
   def calc_covariance
     # in case we haven't calculated our means yet
     calc_mean_vectors if @means.class == NilClass
@@ -357,7 +371,6 @@ class MattMatrix
     vec1.build(1, 2)
     vec1.matrix[0][0] = test[0][0] - @means[0]
     vec1.matrix[0][1] = test[0][1] - @means[1]
-    # @cov_inv.print_matrix
     # first multiplication
     vec2.mult_matrices(vec1, @cov_inv)
     vec1.transpose
@@ -365,12 +378,25 @@ class MattMatrix
     vec3.mult_matrices(vec2, vec1)
     vec3.mult_scalar_matrix(-0.5, vec3)
     # vec3 should just be a single value now
-    # and I should extract that from my shitty matrix implementation
+    # and I should extract that from my matrix container
     value = vec3.matrix[0][0]
     # lower case L-one and L-two
     value -= l1
     value += l2
     value
+  end
+
+  # calculates and returns the matrix norms
+  def calc_mat_norm
+    max_sum = 0
+    (0..@rows_count - 1).each do |row|
+      sum = 0
+      (0..@cols_count - 1).each do |col|
+        sum += @matrix[row][col].abs
+      end
+      max_sum = sum if sum > max_sum
+    end
+    max_sum
   end
 end
 # rubocop:enable ClassLength

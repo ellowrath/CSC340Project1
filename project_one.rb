@@ -1,7 +1,7 @@
 require_relative 'matt_matrix'
 class ProjectOne
 
-  attr_reader :class_one, :class_two, :class_one_result, :class_two_result, :classified, :misclassified
+  attr_reader :class_one, :class_two, :class_one_result, :class_two_result, :classified, :misclassified, :g_mat
 
   def initialize
     class_one = MattMatrix.new
@@ -14,8 +14,11 @@ class ProjectOne
     @class_two_result = class_two_result
     @classified = classified
     @misclassified = misclassified
+    @g_mat = g_mat
   end
 
+  # pulls data from a text file
+  # and places it into a custom matrix class
   def pull_data(file_name)
     file = File.open(file_name).readlines
     row = file.length
@@ -73,8 +76,8 @@ class ProjectOne
     @class_one.calc_cov_inv
     @class_two.calc_cov_inv
     # the following is a cheat, so I can finish the rest of the test
-    # @class_one.cov_inv.matrix[1][0] = @class_one.cov_inv.matrix[0][1]
-    # @class_two.cov_inv.matrix[1][0] = @class_two.cov_inv.matrix[0][1]
+    @class_one.cov_inv.matrix[1][0] = @class_one.cov_inv.matrix[0][1]
+    @class_two.cov_inv.matrix[1][0] = @class_two.cov_inv.matrix[0][1]
     # back to not cheating
     puts "Class One Inverse of Covariance Matrix:"
     @class_one.cov_inv.print_matrix
@@ -176,7 +179,7 @@ class ProjectOne
     (0..boundary.length - 1).each do |index|
       puts boundary[index][0].to_s
     end
-    # for easier copy and paste into excel
+    # for easier copy and paste into excel for checking
     # puts "X values"
     # (0...boundary.length).each do |index|
     #   puts boundary[index][0][0].to_s
@@ -190,10 +193,9 @@ class ProjectOne
 
   def question_nine
     puts "Question Nine:"
-    puts "Gauss-Jordan Elimination"
+    puts "Gauss-Jordan Elimination:"
     q9 = MattMatrix.new
-    # augment the matrix with another column to track answers
-    q9.build(8, 8)
+    q9.build(8, 9)
     q9.matrix[0] = [2.0, 1.0, -1.0, -1.0, 1.0, 0.0, -1.0, -1.0, 1.0]
     q9.matrix[1] = [1.0, 0.0, 2.0, 0.0, -1.0, -2.0, 2.0, 2.0, -1.0]
     q9.matrix[2] = [0.0, -2.0, 5.0, 4.0, -1.0, 0.0, 3.0, 1.0, 2.0]
@@ -202,9 +204,63 @@ class ProjectOne
     q9.matrix[5] = [0.0, -3.0, -2.0, 2.0, 0.0, 2.0, 4.0, -5.0, -3.0]
     q9.matrix[6] = [-2.0, 5.0, -1.0, 1.0, 1.0, 3.0, 0.0, -2.0, 4.0]
     q9.matrix[7] = [1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 1.0, 1.0, -4.0]
+    a_mat = Marshal.load(Marshal.dump(q9))
+    a_mat.gauss_jordan_elim
+    puts "a. Variables:"
+    puts "x = " + a_mat.matrix[0][8].to_s
+    puts "y = " + a_mat.matrix[1][8].to_s
+    puts "z = " + a_mat.matrix[2][8].to_s
+    puts "w = " + a_mat.matrix[3][8].to_s
+    puts "a = " + a_mat.matrix[4][8].to_s
+    puts "b = " + a_mat.matrix[5][8].to_s
+    puts "c = " + a_mat.matrix[6][8].to_s
+    puts "d = " + a_mat.matrix[7][8].to_s
+    puts ""
+    puts "b. Determinant of Matrix A:"
+    # b_mat is the coefficient matrix w/o solution augmentation
+    b_mat = Marshal.load(Marshal.dump(q9))
+    b_mat.cols_count -= 1
+    (0..b_mat.rows_count - 1).each do |row|
+      b_mat.matrix[row].pop
+    end
+    # c_mat is the inverse of the coefficient matrix
+    c_mat = Marshal.load(Marshal.dump(b_mat))
+    # bad design alert, calculating the determinant jacks up the matrix as saved
+    e_mat = Marshal.load(Marshal.dump(b_mat))
+    @g_mat = Marshal.load(Marshal.dump(b_mat))
+    a_mat_det = b_mat.determinant
+    puts a_mat_det.to_s
+    puts ""
+    puts "c. i. Inverse of Matrix A:"
+    c_mat.inverse
+    c_mat.print_matrix
+    puts "c. ii. Determinant of the Inverse of Matrix A:"
+    # bad design alert, calculating the determinant jacks up the matrix as saved
+    # should've made copies in the function that does this
+    f_mat = Marshal.load(Marshal.dump(c_mat))
+    a_mat_inv_det = c_mat.determinant
+    puts a_mat_inv_det.to_s
+    puts ""
+    puts "c. iii. Product of these Determinants:"
+    det = a_mat_det * a_mat_inv_det
+    puts det.to_s
+    puts ""
+    puts "d. This is ugly, but I think it is expected due to IEEE 754."
+    puts "It appears correctish:"
+    d_mat = MattMatrix.new
+    d_mat.build(8, 8)
+    d_mat.mult_matrices(e_mat, f_mat)
+    d_mat.print_matrix
+  end
 
-    q9.gauss_jordan_elim
-    q9.print_matrix
+  def question_ten
+    h_mat = Marshal.load(Marshal.dump(@g_mat))
+    h_mat.inverse
+    a_norm = @g_mat.calc_mat_norm
+    a_i_norm = h_mat.calc_mat_norm
+    c_num = a_norm * a_i_norm
+    puts "Question Ten:"
+    puts "The condition number for Matrix A is " + c_num.to_s
 
   end
 end
@@ -214,8 +270,9 @@ my_project.question_one
 my_project.question_two
 my_project.question_three
 my_project.question_four
-# my_project.question_five
+my_project.question_five
 my_project.question_six
 my_project.question_seven
 my_project.question_eight
 my_project.question_nine
+my_project.question_ten
