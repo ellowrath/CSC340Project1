@@ -1,0 +1,3 @@
+module MMasher
+
+end
