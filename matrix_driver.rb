@@ -52,6 +52,36 @@ class MatrixDriver
     print_matrix(m)
   end
 
+  def test_strip_identity
+    m = create_matrix(6, 6)
+    zero_matrix(m)
+    print_matrix(m)
+    puts ''
+    augment_with_identity(m)
+    print_matrix(m)
+    puts ''
+    strip_identity(m)
+    print_matrix(m)
+  end
+
+  def test_conformable_add
+    m = create_matrix(5, 5,)
+    n = create_matrix(5, 5)
+    puts conformable_add?(m, n)
+    o = create_matrix(2, 3)
+    p = create_matrix(6, 5)
+    puts conformable_add?(o, p)
+  end
+
+  def test_conformable_mult
+    m = create_matrix(3, 5)
+    n = create_matrix(5, 6)
+    puts conformable_mult?(m, n)
+    o = create_matrix(2, 3)
+    p = create_matrix(6, 5)
+    puts conformable_mult?(o, p)
+  end
+
   def scrap
     m = create_matrix(1, 3)
     puts get_num_rows(m)
@@ -59,4 +89,4 @@ class MatrixDriver
 end
 
 driver = MatrixDriver.new
-driver.test_augment_with_identity
+driver.test_conformable_mult

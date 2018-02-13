@@ -50,4 +50,19 @@ module MMasher
       end
     end
   end
+
+  # this strips the leading identity matrix if you successfully
+  # calculated an inverse.
+  def strip_identity(a)
+    new_c = a[0].length / 2
+    (0...a.length).each { |r| a[r].shift(new_c) }
+  end
+
+  def conformable_add?(a, b)
+    a.length == b.length && a[0].length == b[0].length
+  end
+
+  def conformable_mult?(a, b)
+    a[0].length == b.length
+  end
 end
