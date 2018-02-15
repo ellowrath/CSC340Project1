@@ -169,6 +169,32 @@ class MatrixDriver
     print_matrix(n)
   end
 
+  def test_transpose
+    puts 'First test a 2x2 matrix of random values.'
+    m = create_matrix(2, 2)
+    rand_fill(m)
+    print_matrix(m)
+    puts ''
+    n = transpose(m)
+    print_matrix(n)
+    puts ''
+    puts 'Next test a 10x1 vector.'
+    o = create_matrix(10, 1)
+    rand_fill(o)
+    print_matrix(o)
+    puts ''
+    q = transpose(o)
+    print_matrix(q)
+    puts ''
+    puts 'Finally test a 1x10 vector.'
+    r = create_matrix(1, 10)
+    rand_fill(r)
+    print_matrix(r)
+    puts ''
+    s = transpose(r)
+    print_matrix(s)
+  end
+
   def scrap
     m = create_matrix(1, 3)
     puts get_num_rows(m)
@@ -176,4 +202,4 @@ class MatrixDriver
 end
 
 driver = MatrixDriver.new
-driver.test_gje
+driver.test_transpose

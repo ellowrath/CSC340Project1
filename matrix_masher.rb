@@ -145,6 +145,15 @@ module MMasher
     pi
   end
 
+  def transpose(a)
+    nr = a[0].length
+    nc = a.length
+    t = a.flatten
+    b = create_matrix(nr, nc)
+    (0...nc).each { |c| (0...nr).each { |r| b[r][c] = t.shift } }
+    b
+  end
+
   def gauss_jordan_elim(m)
     # gje = Array.new(m.length) { Array.new(m[0].length) }
     gje = Marshal.load(Marshal.dump(m))
