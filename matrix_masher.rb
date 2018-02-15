@@ -126,7 +126,6 @@ module MMasher
   end
 
   def interchange_rows(m, r1, r2)
-    puts 'interchange_rows() called.'
     t = Marshal.load(Marshal.dump(m[r1]))
     m[r1] = Marshal.load(Marshal.dump(m[r2]))
     m[r2] = Marshal.load(Marshal.dump(t))
@@ -147,19 +146,19 @@ module MMasher
   end
 
   def gauss_jordan_elim(m)
-    gje = Array.new(m.length) { Array.new(m[0].length) }
-    zero_matrix(gje)
-    (0...m.length).each do |r|
-      p = calc_pivot(m, r)
+    # gje = Array.new(m.length) { Array.new(m[0].length) }
+    gje = Marshal.load(Marshal.dump(m))
+    (0...gje.length).each do |r|
+      p = calc_pivot(gje, r)
       raise 'No unique solution exists.' if p == -1
-      interchange_rows(m, r, p) if p > r
-      mult_row_constant(m, r, 1 / m[r][r])
-      (0...m.length).each do |i|
+      interchange_rows(gje, r, p) if p > r
+      mult_row_constant(gje, r, 1 / gje[r][r])
+      (0...gje.length).each do |i|
         next if r == i
-        tv = m[r].clone
-        tc = m[i][r]
+        tv = gje[r].clone
+        tc = gje[i][r]
         mult_vec_constant(tv, tc)
-        (0...m[i].length).each { |c| gje[i][c] -= tv[c] }
+        (0...gje[i].length).each { |c| gje[i][c] -= tv[c] }
       end
     end
     gje

@@ -166,7 +166,7 @@ class MatrixDriver
     print_matrix(m)
     puts ''
     n = gauss_jordan_elim(m)
-    print(n)
+    print_matrix(n)
   end
 
   def scrap
