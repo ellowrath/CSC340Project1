@@ -71,11 +71,18 @@ class Driver
   # this is not a good test
   def test_transpose
     m = MattMatrix.new
-    m.build(110, 1)
+    m.build(10, 1)
     rand_fill(m)
     m.print_matrix
     m.transpose
     m.print_matrix
+    puts ''
+    n = MattMatrix.new
+    n.build(4, 4)
+    rand_fill(n)
+    n.print_matrix
+    n.transpose
+    n.print_matrix
   end
 
   def test_matrix_multiplication
@@ -167,4 +174,4 @@ class Driver
 end
 
 my_driver = Driver.new
-my_driver.test_gauss_jordan
+my_driver.test_transpose
