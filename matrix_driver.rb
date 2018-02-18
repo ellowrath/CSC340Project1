@@ -169,6 +169,17 @@ class MatrixDriver
     print_matrix(n)
   end
 
+  def test_ge
+    m = create_matrix(3, 4)
+    m[0] = [4.0, -2.0, 1.0, 11.0]
+    m[1] = [8.0, 5.0, -4.0, 14.0]
+    m[2] = [-3.0, 1.0, 5.0, 10.0]
+    print_matrix(m)
+    puts ''
+    n = gaussian_elim(m)
+    print_matrix(n)
+  end
+
   def test_transpose
     puts 'First test a 2x2 matrix of random values.'
     m = create_matrix(2, 2)
@@ -202,4 +213,9 @@ class MatrixDriver
 end
 
 driver = MatrixDriver.new
-driver.test_transpose
+puts 'Comparing my eliminations'
+puts 'Gauss-Jordan first:'
+driver.test_gje
+puts ''
+puts 'Then Gaussian:'
+driver.test_ge

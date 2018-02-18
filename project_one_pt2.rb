@@ -1,4 +1,10 @@
 load('matrix_masher.rb')
+
+#  This is the solutions for project 1. This is a better implementation than
+#  the last. Still, some mistakes were made. I think the eliminations, and the
+#  determinant calculation should have been done in this file, not the
+#  matrix masher module. Maybe they should be moved into a complex matrix ops
+#  module.
 class ProjectOnePT2
   include(MMasher)
   attr_reader :class_one, :class_two
@@ -54,21 +60,180 @@ class ProjectOnePT2
       end
     end
     # b) multiply the nx1 difference vectors by their transpose
-    tva
+    # I really hate this, but I have to drop each vector into an array to keep
+    # the transpose function happy
+    sum = create_matrix(t[0].length, t[0].length)
+    zero_matrix(sum)
+    (0...t.length).each do |r|
+      tv = [t[r]]
+      tv = mult_matrices(transpose(tv), tv)
+      # c) accumulate the sum of the nxn products
+      sum = add_matrices(sum, tv)
+    end
+    # d) multiply the sum by 1/k
+    mult_matrix_scalar(sum, 1 / t.length.to_f)
+  end
 
+  def calc_determinant(m)
+    r = 0
+    t = Marshal.load(Marshal.dump(m))
+    (0...t.length).each do |r|
+      p = calc_pivot(t, r)
+      raise 'No unique solution exists.' if p == -1
+      if p > r
+        interchange_rows(t, r, p) if p > r
+        r += 1
+      end
+      (r...t.length).each do |i|
+        next if r == i
+        tc = t[i][r] / t[r][r]
+        v = Marshal.load(Marshal.dump(t))
+        mult_row_constant(v, r, tc)
+        (r...t[0].length).each do |c|
+          t[i][c] = t[i][c] - v[r][c]
+        end
+      end
+    end
+    delta = 1
+    (0...t.length).each do |r|
+      delta *= t[r][r]
+    end
+    delta *= (-1)**r
+  end
+
+  def calc_inverse(m)
+    i = Marshal.load(Marshal.dump(m))
+    augment_with_identity(i)
+    i = gauss_jordan_elim(i)
+    strip_identity(i)
+    i
+  end
+
+  def classify(v)
+    c1 = calc_discriminant(v, @class_one)
+    c2 = calc_discriminant(v, @class_two)
+    if(c1 > c2)
+      'Class One'
+    else
+      'Class Two'
+    end
+  end
+
+  # v = vector to test
+  # dc = data class
+  # dcc = data class covariance matrix
+  # dccd = data class covariance matrix determinant
+  # dcci = data class covariance matrix inverse
+  # l1 = the first logarithm, (lower case l and number one)
+  # l2 = the second logarithm
+  # m = mean vector for the class
+  def calc_discriminant(v, dc)
+    dcc = calc_covariance(dc)
+    dccd = calc_determinant(dcc)
+    dcci = calc_inverse(dcc)
+    l1 = 0.5 * Math.log(dccd)
+    l2 = Math.log(0.5)
+    m = calc_mean_vec(dc)
+    # matrix masher expects vectors to be matrices
+    # with a zero row
+    v = [v]
+    m = [m]
+    v = sub_matrices(v, m)
+    v2 = mult_matrices(v, dcci)
+    v = transpose(v)
+    v3 = mult_matrices(v2, v)
+    v3 = mult_matrix_scalar(v3, -0.5)
+    d = v3[0][0]
+    d -= l1
+    d += l2
+    d
   end
 
   def q1
+    puts 'Question 1:'
     pull_data('data.txt')
     puts 'The mean vector for Class One is: ' + calc_mean_vec(@class_one).to_s
     puts 'The mean vector for Class Two is: ' + calc_mean_vec(@class_two).to_s
   end
 
   def q2
+    puts 'Question 2:'
+    c1 = calc_covariance(@class_one)
+    c2 = calc_covariance(@class_two)
+    puts 'The covariance matrix for Class One is: '
+    print_matrix(c1)
+    puts''
+    puts 'The covariance matrix for Class Two is: '
+    print_matrix(c2)
+  end
 
+  def q3
+    puts 'Question 3:'
+    c1 = calc_covariance(@class_one)
+    c2 = calc_covariance(@class_two)
+    puts 'The determinant for Class One is: ' + calc_determinant(c1).to_s
+    puts 'The determinant for Class Two is: ' + calc_determinant(c2).to_s
+  end
+
+  def q4
+    puts 'Question 4:'
+    c1 = calc_covariance(@class_one)
+    c2 = calc_covariance(@class_two)
+    augment_with_identity(c1)
+    augment_with_identity(c2)
+    c1 = gauss_jordan_elim(c1)
+    c2 = gauss_jordan_elim(c2)
+    strip_identity(c1)
+    strip_identity(c2)
+    puts 'The inverse of the covariance matrix for Class One: '
+    print_matrix(c1)
+    puts 'The inverse of the covariance matrix for Class Two: '
+    print_matrix(c2)
+  end
+
+  def q5
+    puts 'Question 5 is unchanged from the original submission.'
+  end
+
+  def q6
+    puts 'Question 6:'
+    # we're running the mean vectors through the classifier, to see which
+    # class it classifies them as
+    m1 = calc_mean_vec(@class_one)
+    m2 = calc_mean_vec(@class_two)
+    puts 'm1 is classified as ' + classify(m1)
+    puts 'm2 is classified as ' + classify(m2)
+  end
+
+  def q9
+    puts 'Question 9:'
+    m = create_matrix(8, 9)
+    m[0] = [2.0,  1.0,  -1.0, -1.0, 1.0,  0.0,  -1.0, -1.0, 1.0]
+    m[1] = [1.0,  0.0,  2.0,  0.0,  -1.0, -2.0, 2.0,  2.0,  -1.0]
+    m[2] = [0.0,  -2.0, 5.0,  4.0,  -1.0, 0.0,  3.0,  1.0,  2.0]
+    m[3] = [1.0,  1.0,  -7.0, 3.0,  2.0,  1.0,  -1.0, 0.0,  -2.0]
+    m[4] = [1.0,  1.0,  2.0,  3.0,  -2.0, 2.0,  2.0,  9.0,  3.0]
+    m[5] = [0.0,  -3.0, -2.0, 2.0,  0.0,  2.0,  4.0,  -5.0, -3.0]
+    m[6] = [-2.0, 5.0,  -1.0, 1.0,  1.0,  3.0,  0.0,  -2.0, 4.0]
+    m[7] = [1.0,  0.0,  1.0,  1.0,  0.0,  2.0,  1.0,  1.0,  -4.0]
+    m = gauss_jordan_elim(m)
+    print_matrix(m)
 
   end
 end
 
 my_project = ProjectOnePT2.new
 my_project.q1
+puts ''
+my_project.q2
+puts ''
+my_project.q3
+puts ''
+my_project.q4
+puts ''
+my_project.q5
+puts ''
+my_project.q6
+puts ''
+puts 'Skipping questions 7 and 8.'
+my_project.q9

@@ -105,9 +105,9 @@ module MMasher
   def mult_matrix_scalar(m, s)
     atb = Array.new(m.length) { Array.new(m[0].length) }
     zero_matrix(atb)
-    (0...a.length).each do |r|
-      (0...a[0].length).each do |c|
-        atb[r][c] = a[r][c] * s
+    (0...m.length).each do |r|
+      (0...m[0].length).each do |c|
+        atb[r][c] = m[r][c] * s
       end
     end
     atb
@@ -155,7 +155,6 @@ module MMasher
   end
 
   def gauss_jordan_elim(m)
-    # gje = Array.new(m.length) { Array.new(m[0].length) }
     gje = Marshal.load(Marshal.dump(m))
     (0...gje.length).each do |r|
       p = calc_pivot(gje, r)
@@ -171,5 +170,30 @@ module MMasher
       end
     end
     gje
+  end
+
+  def gaussian_elim(m)
+    ge = []
+    t = Marshal.load(Marshal.dump(m))
+    (0...t.length).each do |r|
+      p = calc_pivot(t, r)
+      raise 'No unique solution exists.' if p == -1
+      interchange_rows(t, r, p) if p > r
+      (r...t.length).each do |i|
+        next if r == i
+        tc = t[i][r] / t[r][r]
+        v = Marshal.load(Marshal.dump(t))
+        mult_row_constant(v, r, tc)
+        (r...t[0].length).each do |c|
+          t[i][c] = t[i][c] - v[r][c]
+        end
+      end
+    end
+    (t.length - 1).downto(0) do |r|
+      sum = 0
+      (r + 1..t[0].length - 2).each { |c| sum += (t[r][c] * ge[c]) }
+      ge[r] = (1 / t[r][r]) * (t[r][t[0].length - 1] - sum)
+    end
+    ge
   end
 end
