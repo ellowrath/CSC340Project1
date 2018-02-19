@@ -206,6 +206,15 @@ class MatrixDriver
     print_matrix(s)
   end
 
+  def test_trace
+    m = create_matrix(5, 5)
+    make_identity(m)
+    print_matrix(m)
+    puts ''
+    n = trace(m)
+    puts n.to_s
+  end
+
   def scrap
     m = create_matrix(1, 3)
     puts get_num_rows(m)
@@ -213,9 +222,4 @@ class MatrixDriver
 end
 
 driver = MatrixDriver.new
-puts 'Comparing my eliminations'
-puts 'Gauss-Jordan first:'
-driver.test_gje
-puts ''
-puts 'Then Gaussian:'
-driver.test_ge
+driver.test_trace

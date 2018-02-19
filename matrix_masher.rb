@@ -196,4 +196,14 @@ module MMasher
     end
     ge
   end
+
+  def trace(m)
+    sum = 0
+    (0...m.length).each do |r|
+      (0...m[0].length).each do |c|
+        sum += m[r][c] if r == c
+      end
+    end
+    sum
+  end
 end
