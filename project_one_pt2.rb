@@ -75,13 +75,13 @@ class ProjectOnePT2
   end
 
   def calc_determinant(m)
-    r = 0
+    rexp = 0
     t = Marshal.load(Marshal.dump(m))
     (0...t.length).each do |r|
       p = calc_pivot(t, r)
       raise 'No unique solution exists.' if p == -1
       if p > r
-        interchange_rows(t, r, p) if p > r
+        interchange_rows(t, r, p)
         r += 1
       end
       (r...t.length).each do |i|
@@ -98,7 +98,7 @@ class ProjectOnePT2
     (0...t.length).each do |r|
       delta *= t[r][r]
     end
-    delta *= (-1)**r
+    delta *= (-1)**rexp
   end
 
   def calc_inverse(m)
@@ -192,7 +192,7 @@ class ProjectOnePT2
   end
 
   def q5
-    puts 'Question 5 is unchanged from the original submission.'
+    puts 'Question 5 is included on the submitted test document.'
   end
 
   def q6
@@ -201,8 +201,32 @@ class ProjectOnePT2
     # class it classifies them as
     m1 = calc_mean_vec(@class_one)
     m2 = calc_mean_vec(@class_two)
-    puts 'm1 is classified as ' + classify(m1)
-    puts 'm2 is classified as ' + classify(m2)
+    puts 'The mean of Class One is classified as ' + classify(m1)
+    puts 'The mean of Class Two is classified as ' + classify(m2)
+  end
+
+  def q7
+    puts 'Question 7:'
+    # class one
+    (0...@class_one.length).each do |v|
+      if(classify(@class_one[v]) == 'Class Two')
+        puts 'Class One point ' + @class_one[v].to_s + ' misclassified.'
+        puts 'Class One determinant: ' + calc_discriminant(@class_one[v], @class_one).to_s
+        puts 'Class Two determinant: ' + calc_discriminant(@class_one[v], @class_two).to_s
+      end
+    end
+    puts ''
+    (0...@class_one.length).each do |v|
+      if(classify(@class_two[v]) == 'Class One')
+        puts 'Class Two point ' + @class_two[v].to_s + ' misclassified.'
+        puts 'Class One determinant: ' + calc_discriminant(@class_two[v], @class_one).to_s
+        puts 'Class Two determinant: ' + calc_discriminant(@class_two[v], @class_two).to_s
+      end
+    end
+  end
+
+  def q8
+
   end
 
   def q9
@@ -218,7 +242,6 @@ class ProjectOnePT2
     m[7] = [1.0,  0.0,  1.0,  1.0,  0.0,  2.0,  1.0,  1.0,  -4.0]
     m = gauss_jordan_elim(m)
     print_matrix(m)
-
   end
 end
 
@@ -235,5 +258,7 @@ my_project.q5
 puts ''
 my_project.q6
 puts ''
-puts 'Skipping questions 7 and 8.'
+my_project.q7
+puts ''
+puts 'Skipping question 8.'
 my_project.q9
