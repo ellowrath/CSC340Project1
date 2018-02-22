@@ -5,6 +5,7 @@ load('matrix_masher.rb')
 #  determinant calculation should have been done in this file, not the
 #  matrix masher module. Maybe they should be moved into a complex matrix ops
 #  module.
+# rubocop:disable ClassLength
 class ProjectOnePT2
   include(MMasher)
   attr_reader :class_one, :class_two
@@ -209,18 +210,22 @@ class ProjectOnePT2
     puts 'Question 7:'
     # class one
     (0...@class_one.length).each do |v|
-      if(classify(@class_one[v]) == 'Class Two')
+      if (classify(@class_one[v]) == 'Class Two')
         puts 'Class One point ' + @class_one[v].to_s + ' misclassified.'
         puts 'Class One determinant: ' + calc_discriminant(@class_one[v], @class_one).to_s
         puts 'Class Two determinant: ' + calc_discriminant(@class_one[v], @class_two).to_s
+        puts ''
       end
     end
     puts ''
+    puts ''
+    # class two
     (0...@class_one.length).each do |v|
-      if(classify(@class_two[v]) == 'Class One')
+      if (classify(@class_two[v]) == 'Class One')
         puts 'Class Two point ' + @class_two[v].to_s + ' misclassified.'
         puts 'Class One determinant: ' + calc_discriminant(@class_two[v], @class_one).to_s
         puts 'Class Two determinant: ' + calc_discriminant(@class_two[v], @class_two).to_s
+        puts ''
       end
     end
   end
@@ -265,6 +270,8 @@ puts ''
 my_project.q7
 puts ''
 puts 'Skipping question 8.'
+puts ''
 my_project.q9
 puts ''
 my_project.q10
+# rubocop:enable ClassLength
