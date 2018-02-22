@@ -243,6 +243,10 @@ class ProjectOnePT2
     m = gauss_jordan_elim(m)
     print_matrix(m)
   end
+
+  def q10
+
+  end
 end
 
 my_project = ProjectOnePT2.new
@@ -262,3 +266,5 @@ my_project.q7
 puts ''
 puts 'Skipping question 8.'
 my_project.q9
+puts ''
+my_project.q10
