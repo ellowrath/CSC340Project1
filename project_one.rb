@@ -1,280 +1,328 @@
-require_relative 'matt_matrix'
-class ProjectOne
+load('matrix_masher.rb')
 
-  attr_reader :class_one, :class_two, :class_one_result, :class_two_result, :classified, :misclassified, :g_mat
+#  This is the solutions for project 1. This is a better implementation than
+#  the last. Still, some mistakes were made. I think the eliminations, and the
+#  determinant calculation should have been done in this file, not the
+#  matrix masher module. Maybe they should be moved into a complex matrix ops
+#  module.
+class ProjectOne
+  include(MMasher)
+  attr_reader :class_one, :class_two, :cm
 
   def initialize
-    class_one = MattMatrix.new
-    class_two = MattMatrix.new
-    class_one_result = []
-    class_two_result = []
+    class_one = []
+    class_two = []
+    cm = []
     @class_one = class_one
     @class_two = class_two
-    @class_one_result = class_one_result
-    @class_two_result = class_two_result
-    @classified = classified
-    @misclassified = misclassified
-    @g_mat = g_mat
+    @cm = cm
   end
 
-  # pulls data from a text file
-  # and places it into a custom matrix class
-  def pull_data(file_name)
-    file = File.open(file_name).readlines
-    row = file.length
-    file.each_index do |line|
-      file[line] = file[line].delete("\n").split("\t")
-      file[line].each_index { |index| file[line][index] = file[line][index].to_f }
+  def pull_data(fn)
+    file = File.open(fn).readlines
+    r = file.length
+    file.each_index do |ln|
+      file[ln] = file[ln].delete("\n").split("\t")
+      file[ln].each_index { |i| file[ln][i] = file[ln][i].to_f }
     end
-    column = file[0].length / 2 # I know I have two sets of data
-    @class_one.build(row, column)
-    @class_two.build(row, column)
-    file.each_index do |line|
-      @class_one.matrix[line][0] = file[line][0]
-      @class_one.matrix[line][1] = file[line][1]
-      @class_two.matrix[line][0] = file[line][2]
-      @class_two.matrix[line][1] = file[line][3]
+    c = file[0].length / 2 # I know I have two sets of data
+    @class_one = create_matrix(r, c)
+    @class_two = create_matrix(r, c)
+    file.each_index do |ln|
+      @class_one[ln][0] = file[ln][0]
+      @class_one[ln][1] = file[ln][1]
+      @class_two[ln][0] = file[ln][2]
+      @class_two[ln][1] = file[ln][3]
     end
   end
 
-  def question_one
-    puts "Question 1:"
-    pull_data'data.txt'
-    @class_one.calc_mean_vectors
-    @class_two.calc_mean_vectors
-    puts "Mean Vectors:"
-    puts "Class One Mean Vector:"
-    puts @class_one.means.to_s
-    puts "Class Two Mean Vector:"
-    puts @class_two.means.to_s
-    puts ""
-  end
-
-  def question_two
-    puts "Question 2:"
-    @class_one.calc_covariance
-    @class_two.calc_covariance
-    puts "Class One Covariance Matrix:"
-    @class_one.cov_mat.print_matrix
-    puts "Class Two Covariance Matrix:"
-    @class_two.cov_mat.print_matrix
-  end
-
-  def question_three
-    puts "Question 3:"
-    @class_one.calc_cov_det
-    @class_two.calc_cov_det
-    puts "Class One Determinant of Covariance Matrix:"
-    puts @class_one.cov_det.to_s
-    puts "Class Two Determinant of Covariance Matrix:"
-    puts @class_two.cov_det.to_s
-    puts ""
-  end
-
-  def question_four
-    puts "Question 4:"
-    @class_one.calc_cov_inv
-    @class_two.calc_cov_inv
-    # the following is a cheat, so I can finish the rest of the test
-    @class_one.cov_inv.matrix[1][0] = @class_one.cov_inv.matrix[0][1]
-    @class_two.cov_inv.matrix[1][0] = @class_two.cov_inv.matrix[0][1]
-    # back to not cheating
-    puts "Class One Inverse of Covariance Matrix:"
-    @class_one.cov_inv.print_matrix
-    puts "Class Two Inverse of Covariance Matrix:"
-    @class_two.cov_inv.print_matrix
-  end
-
-  def question_five
-    puts "See turned in Project Sheet."
-  end
-
-  def question_six
-    c1 = 0
-    c2 = 0
-    test = Array.new(1) { Array.new(2) }
-    @misclassified = []
-    @classified = []
-    (0..@class_one.rows_count - 1).each do |row|
-      test[0][0] = Marshal.load(Marshal.dump(@class_one.matrix[row][0]))
-      test[0][1] = Marshal.load(Marshal.dump(@class_one.matrix[row][1]))
-      test1 = @class_one.discriminant(test)
-      test2 = @class_two.discriminant(test)
-      # shallow copy is fine for comparisons, but deep copy needed to
-      # append to an array
-      temp =  Marshal.load(Marshal.dump(test))
-      if test1 > test2
-        # from Class One, classified as Class One
-        @classified.append([temp, "Class One", "Class One"])
-        c1 += 1
-      else
-        # from Class One, classified as Class Two
-        @classified.append([temp, "Class One", "Class Two"])
-        c2 += 1
-      end
-      test[0][0] = Marshal.load(Marshal.dump(@class_two.matrix[row][0]))
-      test[0][1] = Marshal.load(Marshal.dump(@class_two.matrix[row][1]))
-      test1 = @class_one.discriminant(test)
-      test2 = @class_two.discriminant(test)
-      temp =  Marshal.load(Marshal.dump(test))
-      if test1 > test2
-        # from Class One, classified as Class One
-        @classified.append([temp, "Class Two", "Class One"])
-        c1 += 1
-      else
-        # from Class One, classified as Class Two
-        @classified.append([temp, "Class Two", "Class Two"])
-        c2 += 1
+  # takes an nx2 matrix, and produces 1x2 vector containing the means
+  def calc_mean_vec(a)
+    m = Array.new(a[0].length, 0)
+    (0...a.length).each do |r|
+      (0...a[0].length).each do |c|
+        m[c] += a[r][c]
       end
     end
-    puts "Question Six:"
-    puts "Number of points classified as Class One: " + c1.to_s
-    puts "Number of points classified as Class Two: " + c2.to_s
-    puts "Points Classified as Class One:"
-    (0..@classified.length - 1).each do |index|
-      puts @classified[index][0].to_s if @classified[index][2] == "Class One"
-    end
-    puts ""
-    puts "Points Classified as Class Two:"
-    (0..@classified.length - 1).each do |index|
-      puts @classified[index][0].to_s if @classified[index][2] == "Class Two"
-    end
-    puts ""
+    (0...m.length).each { |i| m[i] /= a.length }
+    m
   end
 
-  def question_seven
-    puts "Question Seven: "
-    (0..@classified.length - 1).each do |index|
-      if @classified[index][1] != @classified[index][2]
-        @misclassified.push(@classified[index])
+  # calculates a covariance matrix
+  # for a nx2 set of data
+  def calc_covariance(a)
+    # set up:
+    # we need our mean vector, and a copy of our class vector
+    m = calc_mean_vec(a)
+    t = Marshal.load(Marshal.dump(a))
+    # a) subtract the mean vectors from the measurement vectors
+    (0...t.length).each do |r|
+      (0...t[0].length).each do |c|
+        t[r][c] -= m[c]
       end
     end
-    puts "Number of misclassified points: " + @misclassified.length.to_s
-    puts "Point \t\t\t\t\t\t\tactual class classified class: "
-    (0..@misclassified.length - 1).each do |row|
-      puts @misclassified[row].to_s
-      puts @class_one.discriminant(@misclassified[row][0]).to_s
-      puts @class_two.discriminant(@misclassified[row][0]).to_s
+    # b) multiply the nx1 difference vectors by their transpose
+    # I really hate this, but I have to drop each vector into an array to keep
+    # the transpose function happy
+    sum = create_matrix(t[0].length, t[0].length)
+    zero_matrix(sum)
+    (0...t.length).each do |r|
+      tv = [t[r]]
+      tv = mult_matrices(transpose(tv), tv)
+      # c) accumulate the sum of the nxn products
+      sum = add_matrices(sum, tv)
     end
-    puts ""
+    # d) multiply the sum by 1/k
+    mult_matrix_scalar(sum, 1 / t.length.to_f)
   end
 
-  def question_eight
+  def calc_determinant(m)
+    rexp = 0
+    t = Marshal.load(Marshal.dump(m))
+    (0...t.length).each do |r|
+      p = calc_pivot(t, r)
+      raise 'No unique solution exists.' if p == -1
+      if p > r
+        interchange_rows(t, r, p)
+        rexp += 1
+      end
+      (r...t.length).each do |i|
+        next if r == i
+        tc = t[i][r] / t[r][r]
+        v = Marshal.load(Marshal.dump(t))
+        mult_row_constant(v, r, tc)
+        (r...t[0].length).each do |c|
+          # t[i][c] = t[i][c] - v[r][c]
+          t[i][c] -= v[r][c]
+        end
+      end
+    end
+    delta = 1
+    (0...t.length).each do |r|
+      delta *= t[r][r]
+    end
+    delta *= (-1)**rexp
+  end
+
+  def calc_inverse(m)
+    i = Marshal.load(Marshal.dump(m))
+    augment_with_identity(i)
+    i = gauss_jordan_elim(i)
+    strip_identity(i)
+    i
+  end
+
+  def classify(v)
+    c1 = calc_discriminant(v, @class_one)
+    c2 = calc_discriminant(v, @class_two)
+    if c1 > c2
+      'Class One'
+    else
+      'Class Two'
+    end
+  end
+
+  # v = vector to test
+  # dc = data class
+  # dcc = data class covariance matrix
+  # dccd = data class covariance matrix determinant
+  # dcci = data class covariance matrix inverse
+  # l1 = the first logarithm, (lower case l and number one)
+  # l2 = the second logarithm
+  # m = mean vector for the class
+  def calc_discriminant(v, dc)
+    dcc = calc_covariance(dc)
+    dccd = calc_determinant(dcc)
+    dcci = calc_inverse(dcc)
+    l1 = 0.5 * Math.log(dccd)
+    l2 = Math.log(0.5)
+    m = calc_mean_vec(dc)
+    # matrix masher expects vectors to be matrices
+    # with a zero row
+    v = [v]
+    m = [m]
+    v = sub_matrices(v, m)
+    v2 = mult_matrices(v, dcci)
+    v = transpose(v)
+    v3 = mult_matrices(v2, v)
+    v3 = mult_matrix_scalar(v3, -0.5)
+    d = v3[0][0]
+    d -= l1
+    d += l2
+    d
+  end
+
+  def q1
+    puts 'Question 1:'
+    pull_data('data.txt')
+    puts 'The mean vector for Class One is: ' + calc_mean_vec(@class_one).to_s
+    puts 'The mean vector for Class Two is: ' + calc_mean_vec(@class_two).to_s
+  end
+
+  def q2
+    puts 'Question 2:'
+    c1 = calc_covariance(@class_one)
+    c2 = calc_covariance(@class_two)
+    puts 'The covariance matrix for Class One is: '
+    print_matrix(c1)
+    puts''
+    puts 'The covariance matrix for Class Two is: '
+    print_matrix(c2)
+  end
+
+  def q3
+    puts 'Question 3:'
+    c1 = calc_covariance(@class_one)
+    c2 = calc_covariance(@class_two)
+    puts 'The determinant for Class One is: ' + calc_determinant(c1).to_s
+    puts 'The determinant for Class Two is: ' + calc_determinant(c2).to_s
+  end
+
+  def q4
+    puts 'Question 4:'
+    c1 = calc_covariance(@class_one)
+    c2 = calc_covariance(@class_two)
+    augment_with_identity(c1)
+    augment_with_identity(c2)
+    c1 = gauss_jordan_elim(c1)
+    c2 = gauss_jordan_elim(c2)
+    strip_identity(c1)
+    strip_identity(c2)
+    puts 'The inverse of the covariance matrix for Class One: '
+    print_matrix(c1)
+    puts 'The inverse of the covariance matrix for Class Two: '
+    print_matrix(c2)
+  end
+
+  def q5
+    puts 'Question 5 is included on the submitted test document.'
+  end
+
+  def q6
+    puts 'Question 6:'
+    # we're running the mean vectors through the classifier, to see which
+    # class it classifies them as
+    m1 = calc_mean_vec(@class_one)
+    m2 = calc_mean_vec(@class_two)
+    puts 'The mean of Class One is classified as ' + classify(m1)
+    puts 'The mean of Class Two is classified as ' + classify(m2)
+  end
+
+  def q7
+    puts 'Question 7:'
+    # class one
+    (0...@class_one.length).each do |v|
+      if classify(@class_one[v]) == 'Class Two'
+        puts 'Class One point ' + @class_one[v].to_s + ' misclassified.'
+        puts 'Class One discriminant: ' + calc_discriminant(@class_one[v], @class_one).to_s
+        puts 'Class Two discriminant: ' + calc_discriminant(@class_one[v], @class_two).to_s
+      end
+    end
+    puts ''
+    (0...@class_one.length).each do |v|
+      if classify(@class_two[v]) == 'Class One'
+        puts 'Class Two point ' + @class_two[v].to_s + ' misclassified.'
+        puts 'Class One discriminant: ' + calc_discriminant(@class_two[v], @class_one).to_s
+        puts 'Class Two discriminant: ' + calc_discriminant(@class_two[v], @class_two).to_s
+      end
+    end
+  end
+
+  def q8
     # mark my boundary
     left = 0.5
     up = 4.0
     right = 2.5
     down = -2.0
-    inc = 0.005
+    # I used inc = 0.005 for the test submission, but that takes a while to run
+    # so I bumped it down for making public
+    inc = 0.02
     boundary = []
-    # massage this
     epsilon = 0.01
-    (down...up).step(inc).each do |y_value|
-      (left...right).step(inc).each do |x_value|
-        test = [[x_value, y_value]]
-        dif = (@class_one.discriminant(test) - @class_two.discriminant(test)).abs
+    (down...up).step(inc).each do |y|
+      (left...right).step(inc).each do |x|
+        test = [x, y]
+        dif = (calc_discriminant(test, @class_one) - calc_discriminant(test, @class_two)).abs
         boundary.append(test) if dif < epsilon
       end
     end
-    puts "Question Eight:"
-    puts "Boundary points for Plotting:"
-    (0..boundary.length - 1).each do |index|
-      puts boundary[index][0].to_s
-    end
-    # for easier copy and paste into excel for checking
-    # puts "X values"
-    # (0...boundary.length).each do |index|
-    #   puts boundary[index][0][0].to_s
-    # end
-    # puts "Y values"
-    # (0...boundary.length).each do |index|
-    #   puts boundary[index][0][1].to_s
-    # end
-    puts ""
+    puts 'Question 8:'
+    puts 'Boundary points for Plotting:'
+    (0...boundary.length).each { |i| puts boundary[i].to_s }
   end
 
-  def question_nine
-    puts "Question Nine:"
-    puts "Gauss-Jordan Elimination:"
-    q9 = MattMatrix.new
-    q9.build(8, 9)
-    q9.matrix[0] = [2.0, 1.0, -1.0, -1.0, 1.0, 0.0, -1.0, -1.0, 1.0]
-    q9.matrix[1] = [1.0, 0.0, 2.0, 0.0, -1.0, -2.0, 2.0, 2.0, -1.0]
-    q9.matrix[2] = [0.0, -2.0, 5.0, 4.0, -1.0, 0.0, 3.0, 1.0, 2.0]
-    q9.matrix[3] = [1.0, 1.0, -7.0, 3.0, 2.0, 1.0, -1.0, 0.0, -2.0]
-    q9.matrix[4] = [1.0, 1.0, 2.0, 3.0, -2.0, 2.0, 2.0, 9.0, 3.0]
-    q9.matrix[5] = [0.0, -3.0, -2.0, 2.0, 0.0, 2.0, 4.0, -5.0, -3.0]
-    q9.matrix[6] = [-2.0, 5.0, -1.0, 1.0, 1.0, 3.0, 0.0, -2.0, 4.0]
-    q9.matrix[7] = [1.0, 0.0, 1.0, 1.0, 0.0, 2.0, 1.0, 1.0, -4.0]
-    a_mat = Marshal.load(Marshal.dump(q9))
-    a_mat.gauss_jordan_elim
-    puts "a. Variables:"
-    puts "x = " + a_mat.matrix[0][8].to_s
-    puts "y = " + a_mat.matrix[1][8].to_s
-    puts "z = " + a_mat.matrix[2][8].to_s
-    puts "w = " + a_mat.matrix[3][8].to_s
-    puts "a = " + a_mat.matrix[4][8].to_s
-    puts "b = " + a_mat.matrix[5][8].to_s
-    puts "c = " + a_mat.matrix[6][8].to_s
-    puts "d = " + a_mat.matrix[7][8].to_s
+  def q9
+    puts 'Question 9:'
+    m = create_matrix(8, 9)
+    m[0] = [2.0,  1.0,  -1.0, -1.0, 1.0,  0.0,  -1.0, -1.0, 1.0]
+    m[1] = [1.0,  0.0,  2.0,  0.0,  -1.0, -2.0, 2.0,  2.0,  -1.0]
+    m[2] = [0.0,  -2.0, 5.0,  4.0,  -1.0, 0.0,  3.0,  1.0,  2.0]
+    m[3] = [1.0,  1.0,  -7.0, 3.0,  2.0,  1.0,  -1.0, 0.0,  -2.0]
+    m[4] = [1.0,  1.0,  2.0,  3.0,  -2.0, 2.0,  2.0,  9.0,  3.0]
+    m[5] = [0.0,  -3.0, -2.0, 2.0,  0.0,  2.0,  4.0,  -5.0, -3.0]
+    m[6] = [-2.0, 5.0,  -1.0, 1.0,  1.0,  3.0,  0.0,  -2.0, 4.0]
+    m[7] = [1.0,  0.0,  1.0,  1.0,  0.0,  2.0,  1.0,  1.0,  -4.0]
+    n = Marshal.load(Marshal.dump(m))
+    m = gauss_jordan_elim(m)
+    puts 'a. Variables:'
+    puts 'x = ' + m[0][8].to_s
+    puts 'y = ' + m[1][8].to_s
+    puts 'z = ' + m[2][8].to_s
+    puts 'w = ' + m[3][8].to_s
+    puts 'a = ' + m[4][8].to_s
+    puts 'b = ' + m[5][8].to_s
+    puts 'c = ' + m[6][8].to_s
+    puts 'd = ' + m[7][8].to_s
     puts ""
-    puts "b. Determinant of Matrix A:"
-    # b_mat is the coefficient matrix w/o solution augmentation
-    b_mat = Marshal.load(Marshal.dump(q9))
-    b_mat.cols_count -= 1
-    (0..b_mat.rows_count - 1).each do |row|
-      b_mat.matrix[row].pop
+    # we need to remove the augmentation
+    (0...n.length).each do |r|
+      n[r].pop
     end
-    # c_mat is the inverse of the coefficient matrix
-    c_mat = Marshal.load(Marshal.dump(b_mat))
-    # bad design alert, calculating the determinant jacks up the matrix as saved
-    e_mat = Marshal.load(Marshal.dump(b_mat))
-    @g_mat = Marshal.load(Marshal.dump(b_mat))
-    a_mat_det = b_mat.determinant
-    puts a_mat_det.to_s
-    puts ""
-    puts "c. i. Inverse of Matrix A:"
-    c_mat.inverse
-    c_mat.print_matrix
-    puts "c. ii. Determinant of the Inverse of Matrix A:"
-    # bad design alert, calculating the determinant jacks up the matrix as saved
-    # should've made copies in the function that does this
-    f_mat = Marshal.load(Marshal.dump(c_mat))
-    a_mat_inv_det = c_mat.determinant
-    puts a_mat_inv_det.to_s
-    puts ""
-    puts "c. iii. Product of these Determinants:"
-    det = a_mat_det * a_mat_inv_det
-    puts det.to_s
-    puts ""
-    puts "d. This is ugly, but I think it is expected due to IEEE 754."
-    puts "It appears correctish:"
-    d_mat = MattMatrix.new
-    d_mat.build(8, 8)
-    d_mat.mult_matrices(e_mat, f_mat)
-    d_mat.print_matrix
+    # this is cheating, need to pop this matrix into a global
+    # for question 10. It could be that defining functions
+    # by questions on a test is not solid principles.
+    @cm = Marshal.load(Marshal.dump(n))
+    d = calc_determinant(n)
+    mi = calc_inverse(n)
+    di = calc_determinant(mi)
+    puts 'b. The determinant of the coefficient matrix is ' + d.to_s
+    puts 'c. The following all exist:'
+    puts "\t\ti. The inverse of the coefficient matrix is:"
+    print_matrix(mi)
+    puts "\t\tii. The determinant of A inverse is:" + di.to_s
+    puts "\t\tiii. The product of determinants of A and A inverse is " + (d * di).to_s
+    puts 'd. The product of coefficient matrix A and its inverse is:'
+    print_matrix(mult_matrices(n, mi))
   end
 
-  def question_ten
-    h_mat = Marshal.load(Marshal.dump(@g_mat))
-    h_mat.inverse
-    a_norm = @g_mat.calc_mat_norm
-    a_i_norm = h_mat.calc_mat_norm
-    c_num = a_norm * a_i_norm
-    puts "Question Ten:"
-    puts "The condition number for Matrix A is " + c_num.to_s
-
+  def q10
+    a = Marshal.load(Marshal.dump(@cm))
+    ai = calc_inverse(a)
+    an = calc_mat_norm(a)
+    ain = calc_mat_norm(ai)
+    c = an * ain
+    puts 'Question 10:'
+    puts 'The condition number for matrix A in problem 9 is ' + c.to_s
   end
 end
 
 my_project = ProjectOne.new
-my_project.question_one
-my_project.question_two
-my_project.question_three
-my_project.question_four
-my_project.question_five
-my_project.question_six
-my_project.question_seven
-#  my_project.question_eight
-my_project.question_nine
-my_project.question_ten
+my_project.q1
+puts ''
+my_project.q2
+puts ''
+my_project.q3
+puts ''
+my_project.q4
+puts ''
+my_project.q5
+puts ''
+my_project.q6
+puts ''
+my_project.q7
+puts ''
+my_project.q8
+puts ''
+my_project.q9
+puts ''
+my_project.q10
