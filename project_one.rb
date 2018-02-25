@@ -153,6 +153,8 @@ class ProjectOne
     puts "Point \t\t\t\t\t\t\tactual class classified class: "
     (0..@misclassified.length - 1).each do |row|
       puts @misclassified[row].to_s
+      puts @class_one.discriminant(@misclassified[row][0]).to_s
+      puts @class_two.discriminant(@misclassified[row][0]).to_s
     end
     puts ""
   end
@@ -199,7 +201,7 @@ class ProjectOne
     q9.matrix[0] = [2.0, 1.0, -1.0, -1.0, 1.0, 0.0, -1.0, -1.0, 1.0]
     q9.matrix[1] = [1.0, 0.0, 2.0, 0.0, -1.0, -2.0, 2.0, 2.0, -1.0]
     q9.matrix[2] = [0.0, -2.0, 5.0, 4.0, -1.0, 0.0, 3.0, 1.0, 2.0]
-    q9.matrix[3] = [1.0, 1.0, -7.0, 2.0, 2.0, 1.0, -1.0, 0.0, -2.0]
+    q9.matrix[3] = [1.0, 1.0, -7.0, 3.0, 2.0, 1.0, -1.0, 0.0, -2.0]
     q9.matrix[4] = [1.0, 1.0, 2.0, 3.0, -2.0, 2.0, 2.0, 9.0, 3.0]
     q9.matrix[5] = [0.0, -3.0, -2.0, 2.0, 0.0, 2.0, 4.0, -5.0, -3.0]
     q9.matrix[6] = [-2.0, 5.0, -1.0, 1.0, 1.0, 3.0, 0.0, -2.0, 4.0]
@@ -273,6 +275,6 @@ my_project.question_four
 my_project.question_five
 my_project.question_six
 my_project.question_seven
-my_project.question_eight
+#  my_project.question_eight
 my_project.question_nine
 my_project.question_ten

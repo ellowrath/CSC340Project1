@@ -7,13 +7,15 @@ load('matrix_masher.rb')
 #  module.
 class ProjectOnePT2
   include(MMasher)
-  attr_reader :class_one, :class_two
+  attr_reader :class_one, :class_two, :cm
 
   def initialize
     class_one = []
     class_two = []
+    cm = []
     @class_one = class_one
     @class_two = class_two
+    @cm = cm
   end
 
   def pull_data(fn)
@@ -82,7 +84,7 @@ class ProjectOnePT2
       raise 'No unique solution exists.' if p == -1
       if p > r
         interchange_rows(t, r, p)
-        r += 1
+        rexp += 1
       end
       (r...t.length).each do |i|
         next if r == i
@@ -90,7 +92,8 @@ class ProjectOnePT2
         v = Marshal.load(Marshal.dump(t))
         mult_row_constant(v, r, tc)
         (r...t[0].length).each do |c|
-          t[i][c] = t[i][c] - v[r][c]
+          # t[i][c] = t[i][c] - v[r][c]
+          t[i][c] -= v[r][c]
         end
       end
     end
@@ -112,7 +115,7 @@ class ProjectOnePT2
   def classify(v)
     c1 = calc_discriminant(v, @class_one)
     c2 = calc_discriminant(v, @class_two)
-    if(c1 > c2)
+    if c1 > c2
       'Class One'
     else
       'Class Two'
@@ -209,24 +212,43 @@ class ProjectOnePT2
     puts 'Question 7:'
     # class one
     (0...@class_one.length).each do |v|
-      if(classify(@class_one[v]) == 'Class Two')
+      if classify(@class_one[v]) == 'Class Two'
         puts 'Class One point ' + @class_one[v].to_s + ' misclassified.'
-        puts 'Class One determinant: ' + calc_discriminant(@class_one[v], @class_one).to_s
-        puts 'Class Two determinant: ' + calc_discriminant(@class_one[v], @class_two).to_s
+        puts 'Class One discriminant: ' + calc_discriminant(@class_one[v], @class_one).to_s
+        puts 'Class Two discriminant: ' + calc_discriminant(@class_one[v], @class_two).to_s
       end
     end
     puts ''
     (0...@class_one.length).each do |v|
-      if(classify(@class_two[v]) == 'Class One')
+      if classify(@class_two[v]) == 'Class One'
         puts 'Class Two point ' + @class_two[v].to_s + ' misclassified.'
-        puts 'Class One determinant: ' + calc_discriminant(@class_two[v], @class_one).to_s
-        puts 'Class Two determinant: ' + calc_discriminant(@class_two[v], @class_two).to_s
+        puts 'Class One discriminant: ' + calc_discriminant(@class_two[v], @class_one).to_s
+        puts 'Class Two discriminant: ' + calc_discriminant(@class_two[v], @class_two).to_s
       end
     end
   end
 
   def q8
-
+    # mark my boundary
+    left = 0.5
+    up = 4.0
+    right = 2.5
+    down = -2.0
+    # I used inc = 0.005 for the test submission, but that takes a while to run
+    # so I bumped it down for making public
+    inc = 0.02
+    boundary = []
+    epsilon = 0.01
+    (down...up).step(inc).each do |y|
+      (left...right).step(inc).each do |x|
+        test = [x, y]
+        dif = (calc_discriminant(test, @class_one) - calc_discriminant(test, @class_two)).abs
+        boundary.append(test) if dif < epsilon
+      end
+    end
+    puts 'Question 8:'
+    puts 'Boundary points for Plotting:'
+    (0...boundary.length).each { |i| puts boundary[i].to_s }
   end
 
   def q9
@@ -240,8 +262,47 @@ class ProjectOnePT2
     m[5] = [0.0,  -3.0, -2.0, 2.0,  0.0,  2.0,  4.0,  -5.0, -3.0]
     m[6] = [-2.0, 5.0,  -1.0, 1.0,  1.0,  3.0,  0.0,  -2.0, 4.0]
     m[7] = [1.0,  0.0,  1.0,  1.0,  0.0,  2.0,  1.0,  1.0,  -4.0]
+    n = Marshal.load(Marshal.dump(m))
     m = gauss_jordan_elim(m)
-    print_matrix(m)
+    puts 'a. Variables:'
+    puts 'x = ' + m[0][8].to_s
+    puts 'y = ' + m[1][8].to_s
+    puts 'z = ' + m[2][8].to_s
+    puts 'w = ' + m[3][8].to_s
+    puts 'a = ' + m[4][8].to_s
+    puts 'b = ' + m[5][8].to_s
+    puts 'c = ' + m[6][8].to_s
+    puts 'd = ' + m[7][8].to_s
+    puts ""
+    # we need to remove the augmentation
+    (0...n.length).each do |r|
+      n[r].pop
+    end
+    # this is cheating, need to pop this matrix into a global
+    # for question 10. It could be that defining functions
+    # by questions on a test is not solid principles.
+    @cm = Marshal.load(Marshal.dump(n))
+    d = calc_determinant(n)
+    mi = calc_inverse(n)
+    di = calc_determinant(mi)
+    puts 'b. The determinant of the coefficient matrix is ' + d.to_s
+    puts 'c. The following all exist:'
+    puts "\t\ti. The inverse of the coefficient matrix is:"
+    print_matrix(mi)
+    puts "\t\tii. The determinant of A inverse is:" + di.to_s
+    puts "\t\tiii. The product of determinants of A and A inverse is " + (d * di).to_s
+    puts 'd. The product of coefficient matrix A and its inverse is:'
+    print_matrix(mult_matrices(n, mi))
+  end
+
+  def q10
+    a = Marshal.load(Marshal.dump(@cm))
+    ai = calc_inverse(a)
+    an = calc_mat_norm(a)
+    ain = calc_mat_norm(ai)
+    c = an * ain
+    puts 'Question 10:'
+    puts 'The condition number for matrix A in problem 9 is ' + c.to_s
   end
 end
 
@@ -260,5 +321,8 @@ my_project.q6
 puts ''
 my_project.q7
 puts ''
-puts 'Skipping question 8.'
+# my_project.q8
+puts ''
 my_project.q9
+puts ''
+my_project.q10

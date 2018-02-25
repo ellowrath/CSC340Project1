@@ -96,7 +96,7 @@ module MMasher
       (0...b[0].length).each do |c|
         (0...a[0].length).each do |i|
           atb[r][c] += a[r][i] * b[i][c]
-        end
+       end
       end
     end
     atb
@@ -205,5 +205,17 @@ module MMasher
       end
     end
     sum
+  end
+
+  def calc_mat_norm(m)
+    max_sum = 0
+    (0...m.length).each do |r|
+      sum = 0
+      (0...m[0].length).each do |c|
+        sum += m[r][c].abs
+      end
+      max_sum = sum if sum > max_sum
+    end
+    max_sum
   end
 end

@@ -215,6 +215,10 @@ class MatrixDriver
     puts n.to_s
   end
 
+  def test_discriminant
+
+  end
+
   def scrap
     m = create_matrix(1, 3)
     puts get_num_rows(m)
