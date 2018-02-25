@@ -321,7 +321,7 @@ my_project.q6
 puts ''
 my_project.q7
 puts ''
-# my_project.q8
+my_project.q8
 puts ''
 my_project.q9
 puts ''
